@@ -1,0 +1,137 @@
+---
+title: Chính sách
+description: Kiểm soát những tài nguyên đã cấu hình mà OpenCode có thể dùng.
+---
+
+Chính sách kiểm soát việc OpenCode có được thực hiện một hành động trên một tài nguyên có tên hay không. Tính năng này đang ở giai đoạn thử nghiệm và được cấu hình bằng mảng `experimental.policies` trong `opencode.json`.
+
+Chính sách tách biệt với [permissions](/docs/permissions). Permissions kiểm soát công cụ có thể làm gì trong một phiên, còn chính sách kiểm soát việc OpenCode có thể dùng một tài nguyên như nhà cung cấp LLM hay không.
+
+---
+
+## Cấu hình
+
+Mỗi câu lệnh chính sách có ba trường:
+
+- `effect` - Hoặc `"allow"` hoặc `"deny"`.
+- `action` - Thao tác đang được kiểm soát.
+- `resource` - ID tài nguyên hoặc mẫu wildcard mà câu lệnh áp dụng.
+
+Ví dụ, từ chối dùng nhà cung cấp `openai`:
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "experimental": {
+    "policies": [
+      {
+        "effect": "deny",
+        "action": "provider.use",
+        "resource": "openai"
+      }
+    ]
+  }
+}
+```
+
+Một nhà cung cấp bị chính sách từ chối sẽ không khả dụng để chọn mô hình hoặc sử dụng mô hình, ngay cả khi đã có thông tin xác thực hoặc được cấu hình đúng theo cách khác.
+
+---
+
+## Chính sách khả dụng
+
+OpenCode hiện hỗ trợ một hành động chính sách:
+
+| Action         | Resource                   | Description                         |
+| -------------- | -------------------------- | ----------------------------------- |
+| `provider.use` | ID nhà cung cấp, như `openai` | Cho phép hoặc từ chối dùng nhà cung cấp LLM. |
+
+Có thể sẽ có thêm hành động chính sách trong tương lai.
+
+---
+
+## Khớp mẫu
+
+Trường `resource` hỗ trợ khớp wildcard. Dùng `*` để khớp không hoặc nhiều ký tự và `?` để khớp một ký tự.
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "experimental": {
+    "policies": [
+      {
+        "effect": "deny",
+        "action": "provider.use",
+        "resource": "company-*"
+      }
+    ]
+  }
+}
+```
+
+Điều này từ chối các nhà cung cấp như `company-us` và `company-eu`.
+
+---
+
+## Thứ tự quy tắc
+
+Khi nhiều câu lệnh khớp, câu lệnh khớp cuối cùng sẽ thắng. Đặt các quy tắc rộng trước, rồi đặt các ngoại lệ cụ thể hơn sau chúng.
+
+Ví dụ, chỉ cho phép Anthropic:
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "experimental": {
+    "policies": [
+      {
+        "effect": "deny",
+        "action": "provider.use",
+        "resource": "*"
+      },
+      {
+        "effect": "allow",
+        "action": "provider.use",
+        "resource": "anthropic"
+      }
+    ]
+  }
+}
+```
+
+Nếu không có chính sách nào khớp với một nhà cung cấp, việc dùng nhà cung cấp được cho phép theo mặc định.
+
+Chính sách có thể được đặt trong cả cấu hình toàn cục và cấu hình dự án. Nếu chính sách từ cả hai vị trí khớp cùng một nhà cung cấp, chính sách toàn cục của bạn sẽ được ưu tiên hơn chính sách dự án. Điều này ngăn một repository bật lại nhà cung cấp mà bạn đã từ chối toàn cục.
+
+---
+
+## Danh sách nhà cung cấp
+
+Dùng chính sách thay cho các thiết lập cũ hơn `disabled_providers` và `enabled_providers` khi kiểm soát quyền truy cập nhà cung cấp.
+
+Để thay thế `disabled_providers`:
+
+```json title="opencode.json"
+{
+  "experimental": {
+    "policies": [
+      { "effect": "deny", "action": "provider.use", "resource": "openai" },
+      { "effect": "deny", "action": "provider.use", "resource": "google" }
+    ]
+  }
+}
+```
+
+Để thay thế `enabled_providers`, trước tiên từ chối tất cả nhà cung cấp rồi cho phép các nhà cung cấp được chọn sau đó:
+
+```json title="opencode.json"
+{
+  "experimental": {
+    "policies": [
+      { "effect": "deny", "action": "provider.use", "resource": "*" },
+      { "effect": "allow", "action": "provider.use", "resource": "anthropic" },
+      { "effect": "allow", "action": "provider.use", "resource": "openai" }
+    ]
+  }
+}
+```

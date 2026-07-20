@@ -1,0 +1,48 @@
+---
+title: IDE
+description: Tiện ích mở rộng OpenCode cho VS Code, Cursor và các IDE khác
+---
+
+OpenCode tích hợp với VS Code, Cursor hoặc bất kỳ IDE nào hỗ trợ terminal. Chỉ cần chạy `opencode` trong terminal để bắt đầu.
+
+---
+
+## Cách dùng
+
+- **Quick Launch**: Dùng `Cmd+Esc` (Mac) hoặc `Ctrl+Esc` (Windows/Linux) để mở OpenCode trong chế độ terminal chia đôi, hoặc focus vào phiên terminal hiện có nếu đã có một phiên đang chạy.
+- **New Session**: Dùng `Cmd+Shift+Esc` (Mac) hoặc `Ctrl+Shift+Esc` (Windows/Linux) để bắt đầu một phiên terminal OpenCode mới, ngay cả khi đã có một phiên đang mở. Bạn cũng có thể nhấp nút OpenCode trong UI.
+- **Context Awareness**: Tự động chia sẻ vùng chọn hoặc tab hiện tại của bạn với OpenCode.
+- **File Reference Shortcuts**: Dùng `Cmd+Option+K` (Mac) hoặc `Alt+Ctrl+K` (Linux/Windows) để chèn tham chiếu file. Ví dụ, `@File#L37-42`.
+
+---
+
+## Cài đặt
+
+Để cài OpenCode trên VS Code và các fork phổ biến như Cursor, Windsurf, VSCodium:
+
+1. Mở VS Code
+2. Mở terminal tích hợp
+3. Chạy `opencode` - tiện ích mở rộng sẽ tự động được cài đặt
+
+Mặt khác, nếu bạn muốn dùng IDE của riêng mình khi chạy `/editor` hoặc `/export` từ TUI, bạn cần đặt `export EDITOR="code --wait"`. [Tìm hiểu thêm](/docs/tui/#editor-setup).
+
+---
+
+### Cài đặt thủ công
+
+Tìm **OpenCode** trong Extension Marketplace và nhấp **Install**.
+
+---
+
+### Khắc phục sự cố
+
+Nếu tiện ích mở rộng không tự động cài đặt được:
+
+- Đảm bảo bạn đang chạy `opencode` trong terminal tích hợp.
+- Xác nhận CLI cho IDE của bạn đã được cài đặt:
+  - Với VS Code: lệnh `code`
+  - Với Cursor: lệnh `cursor`
+  - Với Windsurf: lệnh `windsurf`
+  - Với VSCodium: lệnh `codium`
+  - Nếu chưa, hãy chạy `Cmd+Shift+P` (Mac) hoặc `Ctrl+Shift+P` (Windows/Linux) và tìm "Shell Command: Install 'code' command in PATH" (hoặc lệnh tương đương cho IDE của bạn)
+- Đảm bảo VS Code có quyền cài đặt tiện ích mở rộng

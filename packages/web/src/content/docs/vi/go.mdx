@@ -1,0 +1,219 @@
+---
+title: Go
+description: Gói đăng ký chi phí thấp cho các open coding model.
+---
+
+import config from "../../../../config.mjs"
+export const console = config.console
+export const email = `mailto:${config.email}`
+
+OpenCode Go là gói đăng ký chi phí thấp — **$5 cho tháng đầu tiên**, sau đó **$10/month** — giúp bạn truy cập ổn định vào các open coding model phổ biến.
+
+Go hoạt động như bất kỳ provider nào khác trong OpenCode. Bạn đăng ký OpenCode Go và nhận API key. Nó **hoàn toàn tùy chọn** và bạn không cần dùng Go để dùng OpenCode.
+
+Gói này được thiết kế chủ yếu cho người dùng quốc tế, với model được host ở US, EU và Singapore để truy cập toàn cầu ổn định.
+
+---
+
+## Bối cảnh
+
+Open model đã trở nên rất tốt. Hiện chúng đạt hiệu năng gần với model độc quyền cho các tác vụ coding. Và vì nhiều provider có thể phục vụ chúng một cách cạnh tranh, chúng thường rẻ hơn rất nhiều.
+
+Tuy nhiên, việc có quyền truy cập ổn định, độ trễ thấp vào chúng có thể khó khăn. Provider khác nhau về chất lượng và tính khả dụng.
+
+:::tip
+Chúng tôi đã kiểm thử một nhóm model và provider được chọn lọc hoạt động tốt với OpenCode.
+:::
+
+Để giải quyết điều này, chúng tôi đã làm vài việc:
+
+1. Chúng tôi kiểm thử một nhóm open model được chọn lọc và trao đổi với đội ngũ của họ về cách chạy chúng tốt nhất.
+2. Sau đó, chúng tôi làm việc với một vài provider để đảm bảo các model này được phục vụ đúng cách.
+3. Cuối cùng, chúng tôi benchmark tổ hợp model/provider và đưa ra danh sách mà chúng tôi thấy tự tin khuyến nghị.
+
+OpenCode Go cho bạn quyền truy cập các model này với giá **$5 cho tháng đầu tiên**, sau đó **$10/month**.
+
+---
+
+## Cách hoạt động
+
+OpenCode Go hoạt động như bất kỳ provider nào khác trong OpenCode.
+
+1. Bạn đăng nhập vào **<a href={console}>OpenCode Zen</a>**, đăng ký Go và sao chép API key.
+2. Bạn chạy lệnh `/connect` trong TUI, chọn `OpenCode Go`, rồi dán API key.
+3. Chạy `/models` trong TUI để xem danh sách model có sẵn qua Go.
+
+:::note
+Mỗi workspace chỉ có một thành viên có thể đăng ký OpenCode Go.
+:::
+
+Danh sách model hiện tại bao gồm:
+
+- **Grok 4.5**
+- **GLM-5.2**
+- **GLM-5.1**
+- **Kimi K3**
+- **Kimi K2.7 Code**
+- **Kimi K2.6**
+- **MiMo-V2.5**
+- **MiMo-V2.5-Pro**
+- **MiniMax M3**
+- **MiniMax M2.7**
+- **Qwen3.7 Max**
+- **Qwen3.7 Plus**
+- **Qwen3.6 Plus**
+- **DeepSeek V4 Pro**
+- **DeepSeek V4 Flash**
+
+Danh sách model có thể thay đổi khi chúng tôi kiểm thử và thêm model mới.
+
+---
+
+## Giới hạn sử dụng
+
+OpenCode Go bao gồm các giới hạn sau:
+
+- **Giới hạn 5 giờ** — mức dùng $12
+- **Giới hạn hàng tuần** — mức dùng $30
+- **Giới hạn hàng tháng** — mức dùng $60
+
+Giới hạn được định nghĩa theo giá trị đô la. Điều này nghĩa là số request thực tế của bạn phụ thuộc vào model bạn dùng. Các model rẻ hơn như DeepSeek V4 Flash cho phép nhiều request hơn, trong khi các model chi phí cao hơn như GLM-5.2 cho phép ít hơn.
+
+Bảng dưới đây cung cấp số request ước tính dựa trên các mẫu sử dụng Go điển hình:
+
+| Model             | request mỗi 5 giờ | request mỗi tuần | request mỗi tháng |
+| ----------------- | ----------------- | ---------------- | ----------------- |
+| Grok 4.5          | 120               | 300              | 600               |
+| GLM-5.2           | 880               | 2,150            | 4,300             |
+| GLM-5.1           | 880               | 2,150            | 4,300             |
+| Kimi K3           | 110               | 250              | 490               |
+| Kimi K2.7 Code    | 1,350             | 4,630            | 9,250             |
+| Kimi K2.6         | 1,150             | 2,880            | 5,750             |
+| MiMo-V2.5         | 30,100            | 75,200           | 150,400           |
+| MiMo-V2.5-Pro     | 3,250             | 8,150            | 16,300            |
+| MiniMax M3        | 3,200             | 8,000            | 16,000            |
+| MiniMax M2.7      | 3,400             | 8,500            | 17,000            |
+| Qwen3.7 Max       | 950               | 2,390            | 4,770             |
+| Qwen3.7 Plus      | 4,300             | 10,800           | 21,600            |
+| Qwen3.6 Plus      | 3,300             | 8,200            | 16,300            |
+| DeepSeek V4 Pro   | 3,450             | 8,550            | 17,150            |
+| DeepSeek V4 Flash | 31,650            | 79,050           | 158,150           |
+
+Các ước tính dựa trên mẫu request đã quan sát:
+
+- Grok 4.5 — 1,100 input, 71,500 cached, 220 output tokens per request
+- GLM-5.2/5.1 — 700 input, 52,000 cached, 150 output tokens per request
+- Kimi K3 — 1,050 input, 76,500 cached, 300 output tokens per request
+- Kimi K2.7/K2.6 — 870 input, 55,000 cached, 200 output tokens per request
+- DeepSeek V4 Pro — 750 input, 82,000 cached, 290 output tokens per request
+- DeepSeek V4 Flash — 790 input, 68,000 cached, 280 output tokens per request
+- MiniMax M3 — 510 input, 56,000 cached, 190 output tokens per request
+- MiniMax M2.7 — 300 input, 55,000 cached, 125 output tokens per request
+- MiMo-V2.5 — 830 input, 71,500 cached, 295 output tokens per request
+- MiMo-V2.5-Pro — 790 input, 86,000 cached, 305 output tokens per request
+- Qwen3.7 Max — 420 input, 66,000 cached, 200 output tokens per request
+- Qwen3.7 Plus — 500 input, 57,000 cached, 190 output tokens per request
+- Qwen3.6 Plus — 500 input, 57,000 cached, 190 output tokens per request
+
+Các ước tính cũng dựa trên giá sau đây cho mỗi 1M token và mức dùng hàng tháng đi kèm với từng model:
+
+| Model                        | Input  | Output | Cached Read | Cached Write | Mức dùng |
+| ---------------------------- | ------ | ------ | ----------- | ------------ | -------- |
+| Grok 4.5                     | $2.00  | $6.00  | $0.30       | -            | $15      |
+| GLM-5.2                      | $1.40  | $4.40  | $0.26       | -            | $60      |
+| GLM-5.1                      | $1.40  | $4.40  | $0.26       | -            | $60      |
+| Kimi K3                      | $3.00  | $15.00 | $0.30       | -            | $15      |
+| Kimi K2.7 Code               | $0.95  | $4.00  | $0.19       | -            | $60      |
+| Kimi K2.6                    | $0.95  | $4.00  | $0.16       | -            | $60      |
+| MiMo V2.5                    | $0.14  | $0.28  | $0.0028     | -            | $60      |
+| MiMo V2.5 Pro                | $0.435 | $0.87  | $0.003625   | -            | $15      |
+| MiniMax M3                   | $0.30  | $1.20  | $0.06       | -            | $60      |
+| MiniMax M2.7                 | $0.30  | $1.20  | $0.06       | $0.375       | $60      |
+| MiniMax M2.5                 | $0.30  | $1.20  | $0.06       | $0.375       | $60      |
+| Qwen3.7 Max                  | $2.50  | $7.50  | $0.50       | $3.125       | $60      |
+| Qwen3.7 Plus (≤ 256K tokens) | $0.40  | $1.60  | $0.04       | $0.50        | $60      |
+| Qwen3.7 Plus (> 256K tokens) | $1.20  | $4.80  | $0.12       | $1.50        | $60      |
+| Qwen3.6 Plus (≤ 256K tokens) | $0.50  | $3.00  | $0.05       | $0.625       | $60      |
+| Qwen3.6 Plus (> 256K tokens) | $2.00  | $6.00  | $0.20       | $2.50        | $60      |
+| DeepSeek V4 Pro              | $0.435 | $0.87  | $0.003625   | -            | $15      |
+| DeepSeek V4 Flash            | $0.14  | $0.28  | $0.0028     | -            | $60      |
+
+Bạn có thể theo dõi mức dùng hiện tại trong **<a href={console}>console</a>**.
+
+:::tip
+Nếu đạt giới hạn sử dụng, bạn vẫn có thể tiếp tục dùng các model miễn phí.
+:::
+
+Giới hạn sử dụng có thể thay đổi khi chúng tôi học hỏi từ mức dùng ban đầu và phản hồi.
+
+---
+
+### Sử dụng vượt giới hạn
+
+Nếu bạn cũng có credit trong số dư Zen, bạn có thể bật tùy chọn **Use balance** trong console. Khi bật, Go sẽ fallback sang số dư Zen của bạn sau khi bạn đạt giới hạn sử dụng, thay vì chặn request.
+
+---
+
+### Vì sao một số model có mức dùng thấp hơn
+
+Với Go, bạn trả $10/month và chúng tôi đặt mục tiêu cho bạn mức dùng gấp 6 lần số đó.
+
+Với hầu hết model, chúng tôi làm được điều này thông qua chiết khấu số lượng lớn và dung lượng GPU được đặt trước. Sau đó chúng tôi chuyển phần tiết kiệm đó cho bạn thông qua hệ số 6x.
+
+Với một số model, chúng tôi chưa có cơ hội thương lượng chiết khấu hoặc host chúng với chi phí thấp hơn, do model còn mới hoặc do giá công khai của chúng đã được chiết khấu.
+
+Với các model này, bạn vẫn nhận được nhiều hơn một chút so với khi trả trực tiếp cho provider của model; đó là lý do hệ số mức dùng của chúng thấp hơn trong bảng trên.
+
+---
+
+## Endpoint
+
+Bạn cũng có thể truy cập model Go thông qua các API endpoint sau.
+
+| Model             | Model ID          | Endpoint                                         | AI SDK Package              |
+| ----------------- | ----------------- | ------------------------------------------------ | --------------------------- |
+| Grok 4.5          | grok-4.5          | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| GLM-5.2           | glm-5.2           | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| GLM-5.1           | glm-5.1           | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| Kimi K3           | kimi-k3           | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| Kimi K2.7 Code    | kimi-k2.7-code    | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| Kimi K2.6         | kimi-k2.6         | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| DeepSeek V4 Pro   | deepseek-v4-pro   | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| DeepSeek V4 Flash | deepseek-v4-flash | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| MiMo-V2.5         | mimo-v2.5         | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| MiMo-V2.5-Pro     | mimo-v2.5-pro     | `https://opencode.ai/zen/go/v1/chat/completions` | `@ai-sdk/openai-compatible` |
+| MiniMax M3        | minimax-m3        | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| MiniMax M2.7      | minimax-m2.7      | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| MiniMax M2.5      | minimax-m2.5      | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| Qwen3.7 Max       | qwen3.7-max       | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| Qwen3.7 Plus      | qwen3.7-plus      | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+| Qwen3.6 Plus      | qwen3.6-plus      | `https://opencode.ai/zen/go/v1/messages`         | `@ai-sdk/anthropic`         |
+
+[model id](/docs/config/#models) trong cấu hình OpenCode của bạn dùng định dạng `opencode-go/<model-id>`. Ví dụ, với Kimi K3, bạn sẽ dùng `opencode-go/kimi-k3` trong cấu hình.
+
+---
+
+### Models
+
+Bạn có thể lấy danh sách đầy đủ các model hiện có và metadata của chúng từ:
+
+```
+https://opencode.ai/zen/go/v1/models
+```
+
+---
+
+## Quyền riêng tư
+
+Gói này được thiết kế chủ yếu cho người dùng quốc tế, với model được host ở US, EU và Singapore để truy cập toàn cầu ổn định. Các provider của chúng tôi tuân theo chính sách zero-retention và không dùng dữ liệu của bạn để huấn luyện model.
+
+---
+
+## Mục tiêu
+
+Chúng tôi tạo OpenCode Go để:
+
+1. Giúp AI coding trở nên **dễ tiếp cận** hơn với nhiều người thông qua một gói đăng ký chi phí thấp.
+2. Cung cấp quyền truy cập **ổn định** vào các open coding model tốt nhất.
+3. Tuyển chọn các model được **kiểm thử và benchmark** cho việc sử dụng coding agent.
+4. **Không khóa chân** bằng cách vẫn cho phép bạn dùng bất kỳ provider nào khác với OpenCode.

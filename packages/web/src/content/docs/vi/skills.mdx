@@ -1,0 +1,222 @@
+---
+title: "Kỹ năng Agent"
+description: "Định nghĩa hành vi tái sử dụng qua các định nghĩa SKILL.md"
+---
+
+Agent skills cho phép OpenCode khám phá các chỉ dẫn tái sử dụng từ repo hoặc thư mục home của bạn.
+Skills được tải theo nhu cầu qua công cụ `skill` gốc—agent thấy các skill có sẵn và có thể tải toàn bộ nội dung khi cần.
+
+---
+
+## Đặt tệp
+
+Tạo một thư mục cho mỗi tên skill và đặt `SKILL.md` bên trong.
+OpenCode tìm kiếm ở các vị trí sau:
+
+- Project config: `.opencode/skills/<name>/SKILL.md`
+- Global config: `~/.config/opencode/skills/<name>/SKILL.md`
+- Project Claude-compatible: `.claude/skills/<name>/SKILL.md`
+- Global Claude-compatible: `~/.claude/skills/<name>/SKILL.md`
+- Project agent-compatible: `.agents/skills/<name>/SKILL.md`
+- Global agent-compatible: `~/.agents/skills/<name>/SKILL.md`
+
+---
+
+## Hiểu cách khám phá
+
+Với các đường dẫn cục bộ của dự án, OpenCode đi ngược lên từ thư mục làm việc hiện tại cho đến khi tới git worktree.
+Nó tải mọi `skills/*/SKILL.md` khớp trong `.opencode/` và mọi `.claude/skills/*/SKILL.md` hoặc `.agents/skills/*/SKILL.md` khớp trên đường đi.
+
+Các định nghĩa global cũng được tải từ `~/.config/opencode/skills/*/SKILL.md`, `~/.claude/skills/*/SKILL.md`, và `~/.agents/skills/*/SKILL.md`.
+
+---
+
+## Viết frontmatter
+
+Mỗi `SKILL.md` phải bắt đầu bằng YAML frontmatter.
+Chỉ các trường sau được nhận diện:
+
+- `name` (required)
+- `description` (required)
+- `license` (optional)
+- `compatibility` (optional)
+- `metadata` (optional, string-to-string map)
+
+Các trường frontmatter không xác định sẽ bị bỏ qua.
+
+---
+
+## Xác thực tên
+
+`name` phải:
+
+- Có 1–64 ký tự
+- Là chữ thường dạng alphanumeric với dấu gạch nối đơn làm phân tách
+- Không bắt đầu hoặc kết thúc bằng `-`
+- Không chứa `--` liên tiếp
+- Khớp với tên thư mục chứa `SKILL.md`
+
+Regex tương đương:
+
+```text
+^[a-z0-9]+(-[a-z0-9]+)*$
+```
+
+---
+
+## Tuân theo quy tắc độ dài
+
+`description` phải có 1-1024 ký tự.
+Hãy viết đủ cụ thể để agent chọn đúng.
+
+---
+
+## Dùng ví dụ
+
+Tạo `.opencode/skills/git-release/SKILL.md` như sau:
+
+```markdown
+---
+name: git-release
+description: Create consistent releases and changelogs
+license: MIT
+compatibility: opencode
+metadata:
+  audience: maintainers
+  workflow: github
+---
+
+## What I do
+
+- Draft release notes from merged PRs
+- Propose a version bump
+- Provide a copy-pasteable `gh release create` command
+
+## When to use me
+
+Use this when you are preparing a tagged release.
+Ask clarifying questions if the target versioning scheme is unclear.
+```
+
+---
+
+## Nhận diện mô tả công cụ
+
+OpenCode liệt kê các skill có sẵn trong mô tả công cụ `skill`.
+Mỗi mục bao gồm tên skill và mô tả:
+
+```xml
+<available_skills>
+  <skill>
+    <name>git-release</name>
+    <description>Create consistent releases and changelogs</description>
+  </skill>
+</available_skills>
+```
+
+Agent tải một skill bằng cách gọi công cụ:
+
+```
+skill({ name: "git-release" })
+```
+
+---
+
+## Cấu hình quyền
+
+Kiểm soát những skill mà agent có thể truy cập bằng quyền dựa trên pattern trong `opencode.json`:
+
+```json
+{
+  "permission": {
+    "skill": {
+      "*": "allow",
+      "pr-review": "allow",
+      "internal-*": "deny",
+      "experimental-*": "ask"
+    }
+  }
+}
+```
+
+| Permission | Behavior                                          |
+| ---------- | ------------------------------------------------- |
+| `allow`    | Skill tải ngay lập tức                            |
+| `deny`     | Skill bị ẩn khỏi agent, quyền truy cập bị từ chối |
+| `ask`      | Người dùng được hỏi phê duyệt trước khi tải       |
+
+Patterns hỗ trợ wildcard: `internal-*` khớp với `internal-docs`, `internal-tools`, v.v.
+
+---
+
+## Ghi đè theo từng agent
+
+Cấp cho các agent cụ thể quyền khác với mặc định global.
+
+**Với custom agents** (trong agent frontmatter):
+
+```yaml
+---
+permission:
+  skill:
+    "documents-*": "allow"
+---
+```
+
+**Với built-in agents** (trong `opencode.json`):
+
+```json
+{
+  "agent": {
+    "plan": {
+      "permission": {
+        "skill": {
+          "internal-*": "allow"
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+## Tắt công cụ skill
+
+Tắt hoàn toàn skills cho những agent không nên dùng chúng:
+
+**Với custom agents**:
+
+```yaml
+---
+tools:
+  skill: false
+---
+```
+
+**Với built-in agents**:
+
+```json
+{
+  "agent": {
+    "plan": {
+      "tools": {
+        "skill": false
+      }
+    }
+  }
+}
+```
+
+Khi bị tắt, phần `<available_skills>` sẽ bị bỏ qua hoàn toàn.
+
+---
+
+## Khắc phục sự cố tải
+
+Nếu một skill không hiển thị:
+
+1. Xác minh `SKILL.md` được viết hoa toàn bộ
+2. Kiểm tra frontmatter có `name` và `description`
+3. Đảm bảo tên skill là duy nhất trên mọi vị trí
+4. Kiểm tra quyền—skills có `deny` sẽ bị ẩn khỏi agent

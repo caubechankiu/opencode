@@ -1,0 +1,463 @@
+---
+title: SDK
+description: JS client type-safe cho opencode server.
+---
+
+import config from "../../../../config.mjs"
+export const typesUrl = `${config.github}/blob/dev/packages/sdk/js/src/gen/types.gen.ts`
+
+opencode JS/TS SDK cung cấp một client type-safe để tương tác với server.
+Dùng nó để xây dựng tích hợp và điều khiển opencode bằng lập trình.
+
+[Tìm hiểu thêm](/docs/server) về cách server hoạt động. Để xem ví dụ, hãy xem các [projects](/docs/ecosystem#projects) do cộng đồng xây dựng.
+
+---
+
+## Cài đặt
+
+Cài SDK từ npm:
+
+```bash
+npm install @opencode-ai/sdk
+```
+
+---
+
+## Tạo client
+
+Tạo một instance của opencode:
+
+```javascript
+import { createOpencode } from "@opencode-ai/sdk"
+
+const { client } = await createOpencode()
+```
+
+Lệnh này khởi động cả server và client
+
+#### Tùy chọn
+
+| Tùy chọn   | Kiểu          | Mô tả                             | Mặc định    |
+| ---------- | ------------- | --------------------------------- | ----------- |
+| `hostname` | `string`      | Hostname của server               | `127.0.0.1` |
+| `port`     | `number`      | Port của server                   | `4096`      |
+| `signal`   | `AbortSignal` | Abort signal để hủy               | `undefined` |
+| `timeout`  | `number`      | Timeout tính bằng ms khi start server | `5000`  |
+| `config`   | `Config`      | Configuration object              | `{}`        |
+
+---
+
+## Config
+
+Bạn có thể truyền một configuration object để tùy chỉnh hành vi. Instance vẫn đọc `opencode.json` của bạn, nhưng bạn có thể ghi đè hoặc thêm cấu hình inline:
+
+```javascript
+import { createOpencode } from "@opencode-ai/sdk"
+
+const opencode = await createOpencode({
+  hostname: "127.0.0.1",
+  port: 4096,
+  config: {
+    model: "anthropic/claude-3-5-sonnet-20241022",
+  },
+})
+
+console.log(`Server running at ${opencode.server.url}`)
+
+opencode.server.close()
+```
+
+## Chỉ client
+
+Nếu bạn đã có một instance opencode đang chạy, bạn có thể tạo client instance để kết nối tới nó:
+
+```javascript
+import { createOpencodeClient } from "@opencode-ai/sdk"
+
+const client = createOpencodeClient({
+  baseUrl: "http://localhost:4096",
+})
+```
+
+#### Tùy chọn
+
+| Tùy chọn        | Kiểu       | Mô tả                                      | Mặc định                |
+| --------------- | ---------- | ------------------------------------------ | ----------------------- |
+| `baseUrl`       | `string`   | URL của server                             | `http://localhost:4096` |
+| `fetch`         | `function` | Custom fetch implementation                | `globalThis.fetch`      |
+| `parseAs`       | `string`   | Phương thức parse response                 | `auto`                  |
+| `responseStyle` | `string`   | Kiểu trả về: `data` hoặc `fields`          | `fields`                |
+| `throwOnError`  | `boolean`  | Throw errors thay vì return                | `false`                 |
+
+---
+
+## Types
+
+SDK bao gồm định nghĩa TypeScript cho mọi API type. Import trực tiếp:
+
+```typescript
+import type { Session, Message, Part } from "@opencode-ai/sdk"
+```
+
+Tất cả types được tạo từ OpenAPI specification của server và có sẵn trong <a href={typesUrl}>types file</a>.
+
+---
+
+## Errors
+
+SDK có thể throw errors để bạn catch và xử lý:
+
+```typescript
+try {
+  await client.session.get({ path: { id: "invalid-id" } })
+} catch (error) {
+  console.error("Failed to get session:", (error as Error).message)
+}
+```
+
+---
+
+## Structured Output
+
+Bạn có thể yêu cầu output JSON có cấu trúc từ model bằng cách chỉ định `format` với JSON schema. Model sẽ dùng tool `StructuredOutput` để trả về JSON đã validate khớp với schema của bạn.
+
+### Cách dùng cơ bản
+
+```typescript
+const result = await client.session.prompt({
+  path: { id: sessionId },
+  body: {
+    parts: [{ type: "text", text: "Research Anthropic and provide company info" }],
+    format: {
+      type: "json_schema",
+      schema: {
+        type: "object",
+        properties: {
+          company: { type: "string", description: "Company name" },
+          founded: { type: "number", description: "Year founded" },
+          products: {
+            type: "array",
+            items: { type: "string" },
+            description: "Main products",
+          },
+        },
+        required: ["company", "founded"],
+      },
+    },
+  },
+})
+
+// Access the structured output
+console.log(result.data.info.structured_output)
+// { company: "Anthropic", founded: 2021, products: ["Claude", "Claude API"] }
+```
+
+### Kiểu định dạng output
+
+| Kiểu          | Mô tả                                                      |
+| ------------- | ---------------------------------------------------------- |
+| `text`        | Mặc định. Text response tiêu chuẩn (không structured output) |
+| `json_schema` | Trả về JSON đã validate khớp với schema được cung cấp      |
+
+### Định dạng JSON Schema
+
+Khi dùng `type: 'json_schema'`, hãy cung cấp:
+
+| Trường       | Kiểu            | Mô tả                                                       |
+| ------------ | --------------- | ----------------------------------------------------------- |
+| `type`       | `'json_schema'` | Bắt buộc. Chỉ định JSON schema mode                         |
+| `schema`     | `object`        | Bắt buộc. JSON Schema object định nghĩa cấu trúc output     |
+| `retryCount` | `number`        | Tùy chọn. Số lần retry validation (mặc định: 2)             |
+
+### Xử lý lỗi
+
+Nếu model không tạo được structured output hợp lệ sau tất cả lần retry, response sẽ bao gồm `StructuredOutputError`:
+
+```typescript
+if (result.data.info.error?.name === "StructuredOutputError") {
+  console.error("Failed to produce structured output:", result.data.info.error.message)
+  console.error("Attempts:", result.data.info.error.retries)
+}
+```
+
+### Thực hành tốt nhất
+
+1. **Cung cấp mô tả rõ ràng** trong schema properties để giúp model hiểu dữ liệu cần trích xuất
+2. **Dùng `required`** để chỉ định những field phải có mặt
+3. **Giữ schema tập trung** - schema lồng nhau phức tạp có thể khó để model điền đúng hơn
+4. **Đặt `retryCount` phù hợp** - tăng cho schema phức tạp, giảm cho schema đơn giản
+
+---
+
+## APIs
+
+SDK expose tất cả server APIs thông qua một type-safe client.
+
+---
+
+### Global
+
+| Method            | Mô tả                               | Response                             |
+| ----------------- | ----------------------------------- | ------------------------------------ |
+| `global.health()` | Kiểm tra health và version server   | `{ healthy: true, version: string }` |
+
+---
+
+#### Ví dụ
+
+```javascript
+const health = await client.global.health()
+console.log(health.data.version)
+```
+
+---
+
+### App
+
+| Method         | Mô tả                          | Response                                    |
+| -------------- | ------------------------------ | ------------------------------------------- |
+| `app.log()`    | Ghi log entry                  | `boolean`                                   |
+| `app.agents()` | Liệt kê tất cả agents có sẵn   | <a href={typesUrl}><code>Agent[]</code></a> |
+
+---
+
+#### Ví dụ
+
+```javascript
+// Write a log entry
+await client.app.log({
+  body: {
+    service: "my-app",
+    level: "info",
+    message: "Operation completed",
+  },
+})
+
+// List available agents
+const agents = await client.app.agents()
+```
+
+---
+
+### Project
+
+| Method              | Mô tả                    | Response                                      |
+| ------------------- | ------------------------ | --------------------------------------------- |
+| `project.list()`    | Liệt kê tất cả projects  | <a href={typesUrl}><code>Project[]</code></a> |
+| `project.current()` | Lấy project hiện tại     | <a href={typesUrl}><code>Project</code></a>   |
+
+---
+
+#### Ví dụ
+
+```javascript
+// List all projects
+const projects = await client.project.list()
+
+// Get current project
+const currentProject = await client.project.current()
+```
+
+---
+
+### Path
+
+| Method       | Mô tả             | Response                                 |
+| ------------ | ----------------- | ---------------------------------------- |
+| `path.get()` | Lấy path hiện tại | <a href={typesUrl}><code>Path</code></a> |
+
+---
+
+#### Ví dụ
+
+```javascript
+// Get current path information
+const pathInfo = await client.path.get()
+```
+
+---
+
+### Config
+
+| Method               | Mô tả                               | Response                                                                                              |
+| -------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `config.get()`       | Lấy thông tin config                | <a href={typesUrl}><code>Config</code></a>                                                            |
+| `config.providers()` | Liệt kê providers và default models | `{ providers: `<a href={typesUrl}><code>Provider[]</code></a>`, default: { [key: string]: string } }` |
+
+---
+
+#### Ví dụ
+
+```javascript
+const config = await client.config.get()
+
+const { providers, default: defaults } = await client.config.providers()
+```
+
+---
+
+### Sessions
+
+| Method                                                     | Mô tả                                    | Notes                                                                                                                                                                                                                    |
+| ---------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `session.list()`                                           | Liệt kê sessions                         | Returns <a href={typesUrl}><code>Session[]</code></a>                                                                                                                                                                    |
+| `session.get({ path })`                                    | Lấy session                              | Returns <a href={typesUrl}><code>Session</code></a>                                                                                                                                                                      |
+| `session.children({ path })`                               | Liệt kê child sessions                   | Returns <a href={typesUrl}><code>Session[]</code></a>                                                                                                                                                                    |
+| `session.create({ body })`                                 | Tạo session                              | Returns <a href={typesUrl}><code>Session</code></a>                                                                                                                                                                      |
+| `session.delete({ path })`                                 | Xóa session                              | Returns `boolean`                                                                                                                                                                                                        |
+| `session.update({ path, body })`                           | Cập nhật thuộc tính session              | Returns <a href={typesUrl}><code>Session</code></a>                                                                                                                                                                      |
+| `session.init({ path, body })`                             | Phân tích app và tạo `AGENTS.md`         | Returns `boolean`                                                                                                                                                                                                        |
+| `session.abort({ path })`                                  | Abort một session đang chạy              | Returns `boolean`                                                                                                                                                                                                        |
+| `session.share({ path })`                                  | Share session                            | Returns <a href={typesUrl}><code>Session</code></a>                                                                                                                                                                      |
+| `session.unshare({ path })`                                | Unshare session                          | Returns <a href={typesUrl}><code>Session</code></a>                                                                                                                                                                      |
+| `session.summarize({ path, body })`                        | Tóm tắt session                          | Returns `boolean`                                                                                                                                                                                                        |
+| `session.messages({ path })`                               | Liệt kê messages trong một session       | Returns `{ info: `<a href={typesUrl}><code>Message</code></a>`, parts: `<a href={typesUrl}><code>Part[]</code></a>`}[]`                                                                                                  |
+| `session.message({ path })`                                | Lấy chi tiết message                     | Returns `{ info: `<a href={typesUrl}><code>Message</code></a>`, parts: `<a href={typesUrl}><code>Part[]</code></a>`}`                                                                                                    |
+| `session.prompt({ path, body })`                           | Gửi prompt message                       | `body.noReply: true` returns UserMessage (context only). Default returns <a href={typesUrl}><code>AssistantMessage</code></a> with AI response. Supports `body.outputFormat` for [structured output](#structured-output) |
+| `session.command({ path, body })`                          | Gửi command tới session                  | Returns `{ info: `<a href={typesUrl}><code>AssistantMessage</code></a>`, parts: `<a href={typesUrl}><code>Part[]</code></a>`}`                                                                                           |
+| `session.shell({ path, body })`                            | Chạy shell command                       | Returns <a href={typesUrl}><code>AssistantMessage</code></a>                                                                                                                                                             |
+| `session.revert({ path, body })`                           | Revert một message                       | Returns <a href={typesUrl}><code>Session</code></a>                                                                                                                                                                      |
+| `session.unrevert({ path })`                               | Khôi phục reverted messages              | Returns <a href={typesUrl}><code>Session</code></a>                                                                                                                                                                      |
+| `postSessionByIdPermissionsByPermissionId({ path, body })` | Phản hồi một permission request          | Returns `boolean`                                                                                                                                                                                                        |
+
+---
+
+#### Ví dụ
+
+```javascript
+// Create and manage sessions
+const session = await client.session.create({
+  body: { title: "My session" },
+})
+
+const sessions = await client.session.list()
+
+// Send a prompt message
+const result = await client.session.prompt({
+  path: { id: session.id },
+  body: {
+    model: { providerID: "anthropic", modelID: "claude-3-5-sonnet-20241022" },
+    parts: [{ type: "text", text: "Hello!" }],
+  },
+})
+
+// Inject context without triggering AI response (useful for plugins)
+await client.session.prompt({
+  path: { id: session.id },
+  body: {
+    noReply: true,
+    parts: [{ type: "text", text: "You are a helpful assistant." }],
+  },
+})
+```
+
+---
+
+### Files
+
+| Method                    | Mô tả                                    | Response                                                                                    |
+| ------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `find.text({ query })`    | Tìm text trong files                     | Array of match objects with `path`, `lines`, `line_number`, `absolute_offset`, `submatches` |
+| `find.files({ query })`   | Tìm files và directories theo tên        | `string[]` (paths)                                                                          |
+| `find.symbols({ query })` | Tìm workspace symbols                    | <a href={typesUrl}><code>Symbol[]</code></a>                                                |
+| `file.read({ query })`    | Đọc một file                             | `{ type: "raw" \| "patch", content: string }`                                               |
+| `file.status({ query? })` | Lấy trạng thái tracked files             | <a href={typesUrl}><code>File[]</code></a>                                                  |
+
+`find.files` hỗ trợ một vài query field tùy chọn:
+
+- `type`: `"file"` hoặc `"directory"`
+- `directory`: ghi đè project root cho tìm kiếm
+- `limit`: số kết quả tối đa (1–200)
+
+---
+
+#### Ví dụ
+
+```javascript
+// Search and read files
+const textResults = await client.find.text({
+  query: { pattern: "function.*opencode" },
+})
+
+const files = await client.find.files({
+  query: { query: "*.ts", type: "file" },
+})
+
+const directories = await client.find.files({
+  query: { query: "packages", type: "directory", limit: 20 },
+})
+
+const content = await client.file.read({
+  query: { path: "src/index.ts" },
+})
+```
+
+---
+
+### TUI
+
+| Method                         | Mô tả                      | Response  |
+| ------------------------------ | -------------------------- | --------- |
+| `tui.appendPrompt({ body })`   | Thêm text vào prompt       | `boolean` |
+| `tui.openHelp()`               | Mở help dialog             | `boolean` |
+| `tui.openSessions()`           | Mở session selector        | `boolean` |
+| `tui.openThemes()`             | Mở theme selector          | `boolean` |
+| `tui.openModels()`             | Mở model selector          | `boolean` |
+| `tui.submitPrompt()`           | Submit prompt hiện tại     | `boolean` |
+| `tui.clearPrompt()`            | Xóa prompt                 | `boolean` |
+| `tui.executeCommand({ body })` | Thực thi command           | `boolean` |
+| `tui.showToast({ body })`      | Hiển thị toast notification | `boolean` |
+
+---
+
+#### Ví dụ
+
+```javascript
+// Control TUI interface
+await client.tui.appendPrompt({
+  body: { text: "Add this to prompt" },
+})
+
+await client.tui.showToast({
+  body: { message: "Task completed", variant: "success" },
+})
+```
+
+---
+
+### Auth
+
+| Method              | Mô tả                             | Response  |
+| ------------------- | --------------------------------- | --------- |
+| `auth.set({ ... })` | Đặt authentication credentials    | `boolean` |
+
+---
+
+#### Ví dụ
+
+```javascript
+await client.auth.set({
+  path: { id: "anthropic" },
+  body: { type: "api", key: "your-api-key" },
+})
+```
+
+---
+
+### Events
+
+| Method              | Mô tả                     | Response                  |
+| ------------------- | ------------------------- | ------------------------- |
+| `event.subscribe()` | Server-sent events stream | Server-sent events stream |
+
+---
+
+#### Ví dụ
+
+```javascript
+// Listen to real-time events
+const events = await client.event.subscribe()
+for await (const event of events.stream) {
+  console.log("Event:", event.type, event.properties)
+}
+```

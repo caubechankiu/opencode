@@ -1,0 +1,127 @@
+---
+title: Chia sẻ
+description: Chia sẻ các cuộc trò chuyện OpenCode của bạn.
+---
+
+Tính năng chia sẻ của OpenCode cho phép bạn tạo liên kết công khai đến các cuộc trò chuyện OpenCode, để bạn có thể cộng tác với đồng đội hoặc nhận trợ giúp từ người khác.
+
+:::note
+Các cuộc trò chuyện đã chia sẻ có thể được truy cập công khai bởi bất kỳ ai có liên kết.
+:::
+
+---
+
+## Cách hoạt động
+
+Khi bạn chia sẻ một cuộc trò chuyện, OpenCode:
+
+1. Tạo một URL công khai duy nhất cho phiên của bạn
+2. Đồng bộ lịch sử trò chuyện của bạn lên server của chúng tôi
+3. Cho phép truy cập cuộc trò chuyện qua liên kết có thể chia sẻ — `opncd.ai/s/<share-id>`
+
+---
+
+## Chia sẻ
+
+OpenCode hỗ trợ ba chế độ chia sẻ kiểm soát cách các cuộc trò chuyện được chia sẻ:
+
+---
+
+### Thủ công (mặc định)
+
+Theo mặc định, OpenCode dùng chế độ chia sẻ thủ công. Các phiên không được chia sẻ tự động, nhưng bạn có thể chia sẻ thủ công bằng lệnh `/share`:
+
+```
+/share
+```
+
+Lệnh này sẽ tạo một URL duy nhất và sao chép vào clipboard của bạn.
+
+Để đặt rõ chế độ thủ công trong [file cấu hình](/docs/config):
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "manual"
+}
+```
+
+---
+
+### Auto-share
+
+Bạn có thể bật chia sẻ tự động cho mọi cuộc trò chuyện mới bằng cách đặt tùy chọn `share` thành `"auto"` trong [file cấu hình](/docs/config):
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "auto"
+}
+```
+
+Khi bật auto-share, mọi cuộc trò chuyện mới sẽ tự động được chia sẻ và một liên kết sẽ được tạo.
+
+---
+
+### Tắt
+
+Bạn có thể tắt hoàn toàn việc chia sẻ bằng cách đặt tùy chọn `share` thành `"disabled"` trong [file cấu hình](/docs/config):
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "disabled"
+}
+```
+
+Để áp dụng điều này cho cả nhóm trong một dự án nhất định, hãy thêm vào `opencode.json` trong dự án của bạn và commit vào Git.
+
+---
+
+## Ngừng chia sẻ
+
+Để ngừng chia sẻ một cuộc trò chuyện và xóa nó khỏi quyền truy cập công khai:
+
+```
+/unshare
+```
+
+Lệnh này sẽ xóa liên kết chia sẻ và xóa dữ liệu liên quan đến cuộc trò chuyện.
+
+---
+
+## Quyền riêng tư
+
+Có một vài điều cần lưu ý khi chia sẻ cuộc trò chuyện.
+
+---
+
+### Lưu giữ dữ liệu
+
+Các cuộc trò chuyện đã chia sẻ vẫn có thể truy cập cho đến khi bạn ngừng chia sẻ chúng một cách rõ ràng. Điều này bao gồm:
+
+- Toàn bộ lịch sử trò chuyện
+- Tất cả tin nhắn và phản hồi
+- Metadata của phiên
+
+---
+
+### Khuyến nghị
+
+- Chỉ chia sẻ các cuộc trò chuyện không chứa thông tin nhạy cảm.
+- Xem lại nội dung cuộc trò chuyện trước khi chia sẻ.
+- Ngừng chia sẻ cuộc trò chuyện khi việc cộng tác đã hoàn tất.
+- Tránh chia sẻ các cuộc trò chuyện có code độc quyền hoặc dữ liệu bí mật.
+- Với dự án nhạy cảm, hãy tắt hoàn toàn tính năng chia sẻ.
+
+---
+
+## Dành cho doanh nghiệp
+
+Với triển khai doanh nghiệp, tính năng chia sẻ có thể được:
+
+- **Tắt** hoàn toàn để đáp ứng yêu cầu bảo mật
+- **Giới hạn** chỉ cho người dùng đã xác thực qua SSO
+- **Self-hosted** trên hạ tầng của riêng bạn
+
+[Tìm hiểu thêm](/docs/enterprise) về việc sử dụng opencode trong tổ chức của bạn.

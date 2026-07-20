@@ -1,0 +1,214 @@
+---
+title: Máy chủ LSP
+description: OpenCode tích hợp với các máy chủ LSP của bạn.
+---
+
+OpenCode có thể tích hợp với các máy chủ Language Server Protocol (LSP) để dùng diagnostics làm phản hồi cho agent.
+
+---
+
+## Tích hợp sẵn
+
+OpenCode đi kèm một số máy chủ LSP tích hợp sẵn cho các ngôn ngữ phổ biến:
+
+| LSP Server         | Extensions                                                          | Requirements                                                 |
+| ------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------ |
+| astro              | .astro                                                              | Tự động cài đặt cho dự án Astro                              |
+| bash               | .sh, .bash, .zsh, .ksh                                              | Tự động cài đặt bash-language-server                         |
+| clangd             | .c, .cpp, .cc, .cxx, .c++, .h, .hpp, .hh, .hxx, .h++                | Tự động cài đặt cho dự án C/C++                              |
+| csharp             | .cs, .csx                                                           | Đã cài `.NET SDK`                                            |
+| clojure-lsp        | .clj, .cljs, .cljc, .edn                                            | Có lệnh `clojure-lsp`                                        |
+| dart               | .dart                                                               | Có lệnh `dart`                                               |
+| deno               | .ts, .tsx, .js, .jsx, .mjs                                          | Có lệnh `deno` (tự phát hiện deno.json/deno.jsonc)           |
+| elixir-ls          | .ex, .exs                                                           | Có lệnh `elixir`                                             |
+| eslint             | .ts, .tsx, .js, .jsx, .mjs, .cjs, .mts, .cts, .vue                  | Phụ thuộc `eslint` trong dự án                               |
+| fsharp             | .fs, .fsi, .fsx, .fsscript                                          | Đã cài `.NET SDK`                                            |
+| gleam              | .gleam                                                              | Có lệnh `gleam`                                              |
+| gopls              | .go                                                                 | Có lệnh `go`                                                 |
+| hls                | .hs, .lhs                                                           | Có lệnh `haskell-language-server-wrapper`                    |
+| jdtls              | .java                                                               | Đã cài `Java SDK (version 21+)`                              |
+| julials            | .jl                                                                 | Đã cài `julia` và `LanguageServer.jl`                        |
+| kotlin-ls          | .kt, .kts                                                           | Tự động cài đặt cho dự án Kotlin                             |
+| lua-ls             | .lua                                                                | Tự động cài đặt cho dự án Lua                                |
+| nixd               | .nix                                                                | Có lệnh `nixd`                                               |
+| ocaml-lsp          | .ml, .mli                                                           | Có lệnh `ocamllsp`                                           |
+| oxlint             | .ts, .tsx, .js, .jsx, .mjs, .cjs, .mts, .cts, .vue, .astro, .svelte | Phụ thuộc `oxlint` trong dự án                               |
+| php intelephense   | .php                                                                | Tự động cài đặt cho dự án PHP                                |
+| prisma             | .prisma                                                             | Có lệnh `prisma`                                             |
+| pyright            | .py, .pyi                                                           | Đã cài phụ thuộc `pyright`                                   |
+| razor              | .razor, .cshtml                                                     | Đã cài `.NET SDK` và VS Code C# extension                    |
+| ruby-lsp (rubocop) | .rb, .rake, .gemspec, .ru                                           | Có lệnh `ruby` và `gem`                                      |
+| rust               | .rs                                                                 | Có lệnh `rust-analyzer`                                      |
+| sourcekit-lsp      | .swift, .objc, .objcpp                                              | Đã cài `swift` (`xcode` trên macOS)                          |
+| svelte             | .svelte                                                             | Tự động cài đặt cho dự án Svelte                             |
+| terraform          | .tf, .tfvars                                                        | Tự động cài đặt từ GitHub releases                           |
+| tinymist           | .typ, .typc                                                         | Tự động cài đặt từ GitHub releases                           |
+| typescript         | .ts, .tsx, .js, .jsx, .mjs, .cjs, .mts, .cts                        | Phụ thuộc `typescript` trong dự án                           |
+| vue                | .vue                                                                | Tự động cài đặt cho dự án Vue                                |
+| yaml-ls            | .yaml, .yml                                                         | Tự động cài đặt Red Hat yaml-language-server                 |
+| zls                | .zig, .zon                                                          | Có lệnh `zig`                                                |
+
+LSP bị tắt theo mặc định. Khi được bật, các máy chủ sẽ khởi động khi phát hiện một trong các phần mở rộng tệp ở trên và đáp ứng yêu cầu.
+
+:::note
+Bạn có thể tắt tải xuống máy chủ LSP tự động bằng cách đặt biến môi trường `OPENCODE_DISABLE_LSP_DOWNLOAD` thành `true`.
+:::
+
+---
+
+## Cách hoạt động
+
+Khi LSP được bật và opencode mở một tệp, nó sẽ:
+
+1. Kiểm tra phần mở rộng tệp với tất cả máy chủ LSP đang bật.
+2. Khởi động máy chủ LSP phù hợp nếu chưa chạy.
+
+---
+
+## Thực hành tốt nhất
+
+LSP có thể giúp agent tìm và sửa vấn đề bằng cách cung cấp diagnostics từ language server. Điều này hữu ích trong một số dự án, nhưng không phải lúc nào cũng là lợi ích ròng.
+
+Language server có thể mất đồng bộ, dùng nhiều bộ nhớ, khác nhau theo phiên bản hoặc dự án, và làm chậm workflow của agent. Trong nhiều dự án, tốt hơn là để agent chạy trực tiếp lint, typecheck, hoặc các công cụ CLI chẩn đoán khác, để lỗi được đưa trở lại vòng lặp agent mà không có những đánh đổi đó. Hãy ghi lại các lệnh đó trong tệp hướng dẫn như `AGENTS.md` hoặc skills để agent biết cần chạy gì. Bật LSP khi dự án của bạn hưởng lợi từ phản hồi bổ sung của language server.
+
+---
+
+## Cấu hình
+
+Bạn có thể bật và tùy chỉnh máy chủ LSP thông qua phần `lsp` trong cấu hình opencode.
+
+Để bật tất cả máy chủ LSP tích hợp sẵn, đặt `lsp` thành `true`.
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": true
+}
+```
+
+Dùng một object để giữ các máy chủ tích hợp sẵn ở trạng thái bật trong khi cấu hình phần ghi đè hoặc máy chủ tùy chỉnh.
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": {}
+}
+```
+
+Mỗi mục máy chủ LSP được cấu hình hỗ trợ các mục sau:
+
+Các mục máy chủ cần `command` trừ khi chúng chỉ tắt một máy chủ.
+
+| Property         | Type     | Description                                         |
+| ---------------- | -------- | --------------------------------------------------- |
+| `disabled`       | boolean  | Đặt thành `true` để tắt máy chủ LSP                 |
+| `command`        | string[] | Lệnh dùng để khởi động máy chủ LSP                  |
+| `extensions`     | string[] | Phần mở rộng tệp mà máy chủ LSP này sẽ xử lý        |
+| `env`            | object   | Biến môi trường cần đặt khi khởi động máy chủ       |
+| `initialization` | object   | Tùy chọn khởi tạo gửi tới máy chủ LSP               |
+
+Hãy xem một vài ví dụ.
+
+---
+
+### Biến môi trường
+
+Dùng thuộc tính `env` để đặt biến môi trường khi khởi động máy chủ LSP:
+
+```json title="opencode.json" {5-8}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": {
+    "rust": {
+      "command": ["rust-analyzer"],
+      "env": {
+        "RUST_LOG": "debug"
+      }
+    }
+  }
+}
+```
+
+---
+
+### Tùy chọn khởi tạo
+
+Dùng thuộc tính `initialization` để truyền tùy chọn khởi tạo cho máy chủ LSP. Đây là các thiết lập riêng theo máy chủ được gửi trong yêu cầu LSP `initialize`:
+
+```json title="opencode.json" {5-13}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": {
+    "custom-lsp": {
+      "command": ["custom-lsp-server", "--stdio"],
+      "extensions": [".custom"],
+      "initialization": {
+        "preferences": {
+          "importModuleSpecifierPreference": "relative"
+        }
+      }
+    }
+  }
+}
+```
+
+:::note
+Tùy chọn khởi tạo khác nhau theo từng máy chủ LSP. Hãy xem tài liệu của máy chủ LSP để biết các tùy chọn khả dụng.
+:::
+
+---
+
+### Tắt máy chủ LSP
+
+Nếu bỏ qua `lsp`, tất cả máy chủ LSP sẽ bị tắt. Để tắt tất cả máy chủ LSP sau khi một cấu hình khác đã bật chúng, đặt `lsp` thành `false`:
+
+```json title="opencode.json" {3}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": false
+}
+```
+
+Để tắt một máy chủ LSP **cụ thể**, đặt `disabled` thành `true`:
+
+```json title="opencode.json" {5}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": {
+    "typescript": {
+      "disabled": true
+    }
+  }
+}
+```
+
+---
+
+### Máy chủ LSP tùy chỉnh
+
+Bạn có thể thêm máy chủ LSP tùy chỉnh bằng cách chỉ định lệnh và phần mở rộng tệp:
+
+```json title="opencode.json" {4-7}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": {
+    "custom-lsp": {
+      "command": ["custom-lsp-server", "--stdio"],
+      "extensions": [".custom"]
+    }
+  }
+}
+```
+
+---
+
+## Thông tin bổ sung
+
+### PHP Intelephense
+
+PHP Intelephense cung cấp các tính năng cao cấp thông qua khóa giấy phép. Bạn có thể cung cấp khóa giấy phép bằng cách đặt (chỉ) khóa đó trong một tệp văn bản tại:
+
+- Trên macOS/Linux: `$HOME/intelephense/license.txt`
+- Trên Windows: `%USERPROFILE%/intelephense/license.txt`
+
+Tệp chỉ nên chứa khóa giấy phép, không có nội dung bổ sung.

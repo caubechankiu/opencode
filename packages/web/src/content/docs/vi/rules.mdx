@@ -1,0 +1,188 @@
+---
+title: Quy tắc
+description: Đặt hướng dẫn tùy chỉnh cho opencode.
+---
+
+Bạn có thể cung cấp hướng dẫn tùy chỉnh cho opencode bằng cách tạo tệp `AGENTS.md`. Cách này tương tự rules của Cursor. Tệp chứa các hướng dẫn sẽ được đưa vào ngữ cảnh của LLM để tùy chỉnh hành vi cho dự án cụ thể của bạn.
+
+---
+
+## Khởi tạo
+
+Để tạo tệp `AGENTS.md` mới, bạn có thể chạy lệnh `/init` trong opencode.
+
+:::tip
+Bạn nên commit tệp `AGENTS.md` của dự án vào Git.
+:::
+
+`/init` quét các tệp quan trọng trong repo, có thể hỏi một vài câu hỏi có mục tiêu khi codebase không tự trả lời được, rồi tạo hoặc cập nhật `AGENTS.md` với hướng dẫn ngắn gọn dành riêng cho dự án.
+
+Nó tập trung vào những điều mà các phiên agent sau này nhiều khả năng sẽ cần:
+
+- lệnh build, lint, và test
+- thứ tự lệnh và các bước xác minh tập trung khi cần
+- kiến trúc và cấu trúc repo không thể nhận ra chỉ từ tên tệp
+- quy ước riêng của dự án, điểm đặc biệt khi thiết lập, và các lỗi vận hành dễ gặp
+- tham chiếu tới các nguồn hướng dẫn hiện có như rules của Cursor hoặc Copilot
+
+Nếu bạn đã có `AGENTS.md`, `/init` sẽ cải thiện tệp đó tại chỗ thay vì thay thế một cách mù quáng.
+
+---
+
+## Ví dụ
+
+Bạn cũng có thể tự tạo tệp này thủ công. Dưới đây là ví dụ về một vài nội dung có thể đặt trong tệp `AGENTS.md`.
+
+```markdown title="AGENTS.md"
+# SST v3 Monorepo Project
+
+This is an SST v3 monorepo with TypeScript. The project uses bun workspaces for package management.
+
+## Project Structure
+
+- `packages/` - Contains all workspace packages (functions, core, web, etc.)
+- `infra/` - Infrastructure definitions split by service (storage.ts, api.ts, web.ts)
+- `sst.config.ts` - Main SST configuration with dynamic imports
+
+## Code Standards
+
+- Use TypeScript with strict mode enabled
+- Shared code goes in `packages/core/` with proper exports configuration
+- Functions go in `packages/functions/`
+- Infrastructure should be split into logical files in `infra/`
+
+## Monorepo Conventions
+
+- Import shared modules using workspace names: `@my-app/core/example`
+```
+
+Chúng ta đang thêm hướng dẫn dành riêng cho dự án ở đây và nội dung này sẽ được chia sẻ trong nhóm của bạn.
+
+---
+
+## Loại
+
+opencode cũng hỗ trợ đọc tệp `AGENTS.md` từ nhiều vị trí. Mỗi vị trí phục vụ một mục đích khác nhau.
+
+### Dự án
+
+Đặt `AGENTS.md` ở thư mục gốc của dự án cho các quy tắc riêng của dự án. Chúng chỉ áp dụng khi bạn làm việc trong thư mục này hoặc các thư mục con của nó.
+
+### Toàn cục
+
+Bạn cũng có thể có quy tắc toàn cục trong tệp `~/.config/opencode/AGENTS.md`. Tệp này được áp dụng cho mọi phiên opencode.
+
+Vì tệp này không được commit vào Git hoặc chia sẻ với nhóm, chúng tôi khuyên bạn dùng nó để chỉ định các quy tắc cá nhân mà LLM nên tuân theo.
+
+### Tương thích với Claude Code
+
+Với người dùng chuyển từ Claude Code, OpenCode hỗ trợ quy ước tệp của Claude Code làm fallback:
+
+- **Quy tắc dự án**: `CLAUDE.md` trong thư mục dự án của bạn (được dùng nếu không có `AGENTS.md`)
+- **Quy tắc toàn cục**: `~/.claude/CLAUDE.md` (được dùng nếu không có `~/.config/opencode/AGENTS.md`)
+- **Skills**: `~/.claude/skills/` — xem [Agent Skills](/docs/skills/) để biết chi tiết
+
+Để tắt khả năng tương thích với Claude Code, đặt một trong các biến môi trường sau:
+
+```bash
+export OPENCODE_DISABLE_CLAUDE_CODE=1        # Disable all .claude support
+export OPENCODE_DISABLE_CLAUDE_CODE_PROMPT=1 # Disable only ~/.claude/CLAUDE.md
+export OPENCODE_DISABLE_CLAUDE_CODE_SKILLS=1 # Disable only .claude/skills
+```
+
+---
+
+## Thứ tự ưu tiên
+
+Khi opencode khởi động, nó tìm tệp quy tắc theo thứ tự này:
+
+1. **Tệp cục bộ** bằng cách đi ngược lên từ thư mục hiện tại (`AGENTS.md`, `CLAUDE.md`)
+2. **Tệp toàn cục** tại `~/.config/opencode/AGENTS.md`
+3. **Tệp Claude Code** tại `~/.claude/CLAUDE.md` (trừ khi bị tắt)
+
+Tệp khớp đầu tiên sẽ thắng trong từng danh mục. Ví dụ, nếu bạn có cả `AGENTS.md` và `CLAUDE.md`, chỉ `AGENTS.md` được dùng. Tương tự, `~/.config/opencode/AGENTS.md` được ưu tiên hơn `~/.claude/CLAUDE.md`.
+
+---
+
+## Hướng dẫn tùy chỉnh
+
+Bạn có thể chỉ định các tệp hướng dẫn tùy chỉnh trong `opencode.json` hoặc tệp toàn cục `~/.config/opencode/opencode.json`. Điều này cho phép bạn và nhóm tái sử dụng các quy tắc hiện có thay vì phải sao chép chúng vào AGENTS.md.
+
+Ví dụ:
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["CONTRIBUTING.md", "docs/guidelines.md", ".cursor/rules/*.md"]
+}
+```
+
+Bạn cũng có thể dùng URL từ xa để tải hướng dẫn từ web.
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["https://raw.githubusercontent.com/my-org/shared-rules/main/style.md"]
+}
+```
+
+Hướng dẫn từ xa được tải với thời gian chờ 5 giây.
+
+Tất cả tệp hướng dẫn được kết hợp với các tệp `AGENTS.md` của bạn.
+
+---
+
+## Tham chiếu tệp bên ngoài
+
+Dù opencode không tự động phân tích tham chiếu tệp trong `AGENTS.md`, bạn có thể đạt chức năng tương tự theo hai cách:
+
+### Dùng opencode.json
+
+Cách được khuyến nghị là dùng trường `instructions` trong `opencode.json`:
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["docs/development-standards.md", "test/testing-guidelines.md", "packages/*/AGENTS.md"]
+}
+```
+
+### Hướng dẫn thủ công trong AGENTS.md
+
+Bạn có thể dạy opencode đọc tệp bên ngoài bằng cách cung cấp hướng dẫn rõ ràng trong `AGENTS.md`. Đây là một ví dụ thực tế:
+
+```markdown title="AGENTS.md"
+# TypeScript Project Rules
+
+## External File Loading
+
+CRITICAL: When you encounter a file reference (e.g., @rules/general.md), use your Read tool to load it on a need-to-know basis. They're relevant to the SPECIFIC task at hand.
+
+Instructions:
+
+- Do NOT preemptively load all references - use lazy loading based on actual need
+- When loaded, treat content as mandatory instructions that override defaults
+- Follow references recursively when needed
+
+## Development Guidelines
+
+For TypeScript code style and best practices: @docs/typescript-guidelines.md
+For React component architecture and hooks patterns: @docs/react-patterns.md
+For REST API design and error handling: @docs/api-standards.md
+For testing strategies and coverage requirements: @test/testing-guidelines.md
+
+## General Guidelines
+
+Read the following file immediately as it's relevant to all workflows: @rules/general-guidelines.md.
+```
+
+Cách này cho phép bạn:
+
+- Tạo các tệp quy tắc dạng mô-đun, có thể tái sử dụng
+- Chia sẻ quy tắc giữa các dự án thông qua symlink hoặc git submodule
+- Giữ AGENTS.md ngắn gọn trong khi vẫn tham chiếu tới hướng dẫn chi tiết
+- Đảm bảo opencode chỉ tải tệp khi cần cho tác vụ cụ thể
+
+:::tip
+Với monorepo hoặc dự án có tiêu chuẩn dùng chung, dùng `opencode.json` với glob pattern (như `packages/*/AGENTS.md`) dễ bảo trì hơn hướng dẫn thủ công.
+:::

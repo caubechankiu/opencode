@@ -1,0 +1,143 @@
+---
+title: Bộ định dạng
+description: OpenCode sử dụng các bộ định dạng theo từng ngôn ngữ.
+---
+
+OpenCode có thể định dạng tệp sau khi chúng được ghi hoặc chỉnh sửa bằng các bộ định dạng theo từng ngôn ngữ. Các bộ định dạng bị tắt theo mặc định; hãy bật chúng trong cấu hình trước khi OpenCode chạy chúng.
+
+---
+
+## Tích hợp sẵn
+
+OpenCode đi kèm một số bộ định dạng tích hợp sẵn cho các ngôn ngữ và framework phổ biến. Dưới đây là danh sách bộ định dạng, phần mở rộng tệp được hỗ trợ, và lệnh hoặc tùy chọn cấu hình cần có.
+
+| Formatter            | Extensions                                                                                               | Requirements                                                                                          |
+| -------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| air                  | .R                                                                                                       | Có lệnh `air`                                                                                         |
+| biome                | .js, .jsx, .ts, .tsx, .html, .css, .md, .json, .yaml, và [nhiều hơn](https://biomejs.dev/)               | Tệp cấu hình `biome.json(c)`                                                                          |
+| cargofmt             | .rs                                                                                                      | Có lệnh `cargo fmt`                                                                                   |
+| clang-format         | .c, .cpp, .h, .hpp, .ino, và [nhiều hơn](https://clang.llvm.org/docs/ClangFormat.html)                   | Tệp cấu hình `.clang-format`                                                                          |
+| cljfmt               | .clj, .cljs, .cljc, .edn                                                                                 | Có lệnh `cljfmt`                                                                                      |
+| dart                 | .dart                                                                                                    | Có lệnh `dart`                                                                                        |
+| dfmt                 | .d                                                                                                       | Có lệnh `dfmt`                                                                                        |
+| gleam                | .gleam                                                                                                   | Có lệnh `gleam`                                                                                       |
+| gofmt                | .go                                                                                                      | Có lệnh `gofmt`                                                                                       |
+| htmlbeautifier       | .erb, .html.erb                                                                                          | Có lệnh `htmlbeautifier`                                                                              |
+| ktlint               | .kt, .kts                                                                                                | Có lệnh `ktlint`                                                                                      |
+| mix                  | .ex, .exs, .eex, .heex, .leex, .neex, .sface                                                             | Có lệnh `mix`                                                                                         |
+| nixfmt               | .nix                                                                                                     | Có lệnh `nixfmt`                                                                                      |
+| ocamlformat          | .ml, .mli                                                                                                | Có lệnh `ocamlformat` và tệp cấu hình `.ocamlformat`                                                  |
+| ormolu               | .hs                                                                                                      | Có lệnh `ormolu`                                                                                      |
+| oxfmt (Experimental) | .js, .jsx, .ts, .tsx                                                                                     | Phụ thuộc `oxfmt` trong `package.json` và [cờ biến môi trường thử nghiệm](/docs/cli/#experimental)    |
+| pint                 | .php                                                                                                     | Phụ thuộc `laravel/pint` trong `composer.json`                                                        |
+| prettier             | .js, .jsx, .ts, .tsx, .html, .css, .md, .json, .yaml, và [nhiều hơn](https://prettier.io/docs/en/index.html) | Phụ thuộc `prettier` trong `package.json`                                                             |
+| rubocop              | .rb, .rake, .gemspec, .ru                                                                                | Có lệnh `rubocop`                                                                                     |
+| ruff                 | .py, .pyi                                                                                                | Có lệnh `ruff` cùng cấu hình                                                                          |
+| rustfmt              | .rs                                                                                                      | Có lệnh `rustfmt`                                                                                     |
+| shfmt                | .sh, .bash                                                                                               | Có lệnh `shfmt`                                                                                       |
+| standardrb           | .rb, .rake, .gemspec, .ru                                                                                | Có lệnh `standardrb`                                                                                  |
+| terraform            | .tf, .tfvars                                                                                             | Có lệnh `terraform`                                                                                   |
+| uv                   | .py, .pyi                                                                                                | Có lệnh `uv`                                                                                          |
+| zig                  | .zig, .zon                                                                                               | Có lệnh `zig`                                                                                         |
+
+Khi bộ định dạng được bật, OpenCode sẽ dùng `prettier` cho các tệp phù hợp nếu dự án của bạn có `prettier` trong `package.json`.
+
+---
+
+## Cách hoạt động
+
+Khi OpenCode ghi hoặc chỉnh sửa tệp và bộ định dạng được bật, nó sẽ:
+
+1. Kiểm tra phần mở rộng tệp với tất cả bộ định dạng đang bật.
+2. Chạy lệnh định dạng phù hợp trên tệp.
+3. Áp dụng các thay đổi định dạng.
+
+Quá trình này diễn ra trong nền đối với các bộ định dạng đã bật.
+
+---
+
+## Cấu hình
+
+Bạn có thể bật và tùy chỉnh bộ định dạng thông qua phần `formatter` trong cấu hình OpenCode.
+
+Để bật tất cả bộ định dạng tích hợp sẵn, đặt `formatter` thành `true`.
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": true
+}
+```
+
+Dùng một object để giữ các bộ tích hợp sẵn ở trạng thái bật trong khi cấu hình phần ghi đè hoặc bộ định dạng tùy chỉnh.
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": {}
+}
+```
+
+Mỗi cấu hình bộ định dạng hỗ trợ các mục sau:
+
+| Property      | Type     | Description                                                                                     |
+| ------------- | -------- | ----------------------------------------------------------------------------------------------- |
+| `disabled`    | boolean  | Đặt thành `true` để tắt bộ định dạng                                                            |
+| `command`     | string[] | Lệnh chạy để định dạng. Bắt buộc với bộ định dạng tùy chỉnh; tùy chọn với bộ tích hợp sẵn.      |
+| `environment` | object   | Các biến môi trường cần đặt khi chạy bộ định dạng                                               |
+| `extensions`  | string[] | Phần mở rộng tệp mà bộ định dạng này sẽ xử lý                                                   |
+
+Hãy xem một vài ví dụ.
+
+---
+
+### Tắt bộ định dạng
+
+Nếu bỏ qua `formatter`, tất cả bộ định dạng sẽ bị tắt. Để tắt tất cả bộ định dạng sau khi một cấu hình khác đã bật chúng, đặt `formatter` thành `false`:
+
+```json title="opencode.json" {3}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": false
+}
+```
+
+Để tắt một bộ định dạng **cụ thể**, đặt `disabled` thành `true`:
+
+```json title="opencode.json" {5}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": {
+    "prettier": {
+      "disabled": true
+    }
+  }
+}
+```
+
+---
+
+### Bộ định dạng tùy chỉnh
+
+Bạn có thể cấu hình các bộ định dạng tích hợp sẵn bằng các tùy chọn như `environment` hoặc `extensions`. Để thêm một bộ định dạng tùy chỉnh, hãy chỉ định `command` và `extensions`:
+
+```json title="opencode.json" {4-14}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": {
+    "prettier": {
+      "command": ["npx", "prettier", "--write", "$FILE"],
+      "environment": {
+        "NODE_ENV": "development"
+      },
+      "extensions": [".js", ".ts", ".jsx", ".tsx"]
+    },
+    "custom-markdown-formatter": {
+      "command": ["deno", "fmt", "$FILE"],
+      "extensions": [".md"]
+    }
+  }
+}
+```
+
+**Placeholder `$FILE`** trong lệnh sẽ được thay bằng đường dẫn tới tệp đang được định dạng.

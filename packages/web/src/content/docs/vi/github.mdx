@@ -1,0 +1,321 @@
+---
+title: GitHub
+description: Dùng OpenCode trong GitHub issues và pull-requests.
+---
+
+OpenCode tích hợp với workflow GitHub của bạn. Mention `/opencode` hoặc `/oc` trong comment, và OpenCode sẽ thực thi task trong GitHub Actions runner của bạn.
+
+---
+
+## Tính năng
+
+- **Triage issues**: Yêu cầu OpenCode xem xét một issue và giải thích cho bạn.
+- **Sửa và triển khai**: Yêu cầu OpenCode sửa một issue hoặc triển khai một tính năng. Nó sẽ làm việc trong một branch mới và gửi PR với tất cả thay đổi.
+- **Bảo mật**: OpenCode chạy bên trong runners của GitHub của bạn.
+
+---
+
+## Cài đặt
+
+Chạy lệnh sau trong một dự án nằm trong GitHub repo:
+
+```bash
+opencode github install
+```
+
+Lệnh này sẽ hướng dẫn bạn cài GitHub app, tạo workflow, và thiết lập secrets.
+
+---
+
+### Thiết lập thủ công
+
+Hoặc bạn có thể thiết lập thủ công.
+
+1. **Cài GitHub app**
+
+   Truy cập [**github.com/apps/opencode-agent**](https://github.com/apps/opencode-agent). Đảm bảo app được cài trên repository đích.
+
+2. **Thêm workflow**
+
+   Thêm workflow file sau vào `.github/workflows/opencode.yml` trong repo của bạn. Hãy nhớ đặt `model` phù hợp và các API key cần thiết trong `env`.
+
+   ```yml title=".github/workflows/opencode.yml" {24,26}
+   name: opencode
+
+   on:
+     issue_comment:
+       types: [created]
+     pull_request_review_comment:
+       types: [created]
+
+   jobs:
+     opencode:
+       if: |
+         contains(github.event.comment.body, '/oc') ||
+         contains(github.event.comment.body, '/opencode')
+       runs-on: ubuntu-latest
+       permissions:
+         id-token: write
+       steps:
+          - name: Checkout repository
+            uses: actions/checkout@v6
+            with:
+              fetch-depth: 1
+              persist-credentials: false
+
+          - name: Run OpenCode
+           uses: anomalyco/opencode/github@latest
+           env:
+             ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+           with:
+             model: anthropic/claude-sonnet-4-20250514
+             # share: true
+             # github_token: xxxx
+   ```
+
+3. **Lưu API keys trong secrets**
+
+   Trong **settings** của organization hoặc project, mở rộng **Secrets and variables** bên trái và chọn **Actions**. Sau đó thêm các API key cần thiết.
+
+---
+
+## Cấu hình
+
+- `model`: Model dùng với OpenCode. Có định dạng `provider/model`. Trường này **bắt buộc**.
+- `agent`: Agent cần dùng. Phải là primary agent. Fallback về `default_agent` từ config hoặc `"build"` nếu không tìm thấy.
+- `share`: Có chia sẻ OpenCode session hay không. Mặc định là **true** cho public repositories.
+- `prompt`: Prompt tùy chỉnh tùy chọn để ghi đè hành vi mặc định. Dùng phần này để tùy chỉnh cách OpenCode xử lý request.
+- `token`: GitHub access token tùy chọn để thực hiện các thao tác như tạo comment, commit thay đổi, và mở pull request. Theo mặc định, OpenCode dùng installation access token từ OpenCode GitHub App, nên commits, comments, và pull requests hiển thị như đến từ app.
+
+  Ngoài ra, bạn có thể dùng [built-in `GITHUB_TOKEN`](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token) của GitHub Action runner mà không cần cài OpenCode GitHub App. Chỉ cần đảm bảo cấp các quyền cần thiết trong workflow:
+
+  ```yaml
+  permissions:
+    id-token: write
+    contents: write
+    pull-requests: write
+    issues: write
+  ```
+
+  Bạn cũng có thể dùng [personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)(PAT) nếu muốn.
+
+---
+
+## Sự kiện được hỗ trợ
+
+OpenCode có thể được kích hoạt bởi các GitHub events sau:
+
+| Event Type                    | Triggered By                         | Details                                                                                                           |
+| ----------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `issue_comment`               | Comment trên issue hoặc PR           | Mention `/opencode` hoặc `/oc` trong comment. OpenCode đọc context và có thể tạo branches, mở PRs, hoặc trả lời. |
+| `pull_request_review_comment` | Comment trên dòng code cụ thể trong PR | Mention `/opencode` hoặc `/oc` khi review code. OpenCode nhận file path, line numbers, và diff context.          |
+| `issues`                      | Issue được mở hoặc chỉnh sửa         | Tự động kích hoạt OpenCode khi issues được tạo hoặc sửa đổi. Yêu cầu input `prompt`.                             |
+| `pull_request`                | PR được mở hoặc cập nhật             | Tự động kích hoạt OpenCode khi PRs được mở, synchronized, hoặc reopened. Hữu ích cho automated reviews.           |
+| `schedule`                    | Lịch dựa trên cron                   | Chạy OpenCode theo lịch. Yêu cầu input `prompt`. Output đi tới logs và PRs (không có issue để comment).          |
+| `workflow_dispatch`           | Kích hoạt thủ công từ GitHub UI      | Kích hoạt OpenCode theo nhu cầu qua tab Actions. Yêu cầu input `prompt`. Output đi tới logs và PRs.              |
+
+### Ví dụ Schedule
+
+Chạy OpenCode theo lịch để thực hiện task tự động:
+
+```yaml title=".github/workflows/opencode-scheduled.yml"
+name: Scheduled OpenCode Task
+
+on:
+  schedule:
+    - cron: "0 9 * * 1" # Every Monday at 9am UTC
+
+jobs:
+  opencode:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@latest
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        with:
+          model: anthropic/claude-sonnet-4-20250514
+          prompt: |
+            Review the codebase for any TODO comments and create a summary.
+            If you find issues worth addressing, open an issue to track them.
+```
+
+Với scheduled events, input `prompt` là **bắt buộc** vì không có comment để trích xuất chỉ dẫn. Scheduled workflows chạy không có user context để kiểm tra quyền, nên workflow phải cấp `contents: write` và `pull-requests: write` nếu bạn muốn OpenCode tạo branches hoặc PRs.
+
+---
+
+### Ví dụ Pull Request
+
+Tự động review PRs khi chúng được mở hoặc cập nhật:
+
+```yaml title=".github/workflows/opencode-review.yml"
+name: opencode-review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: anomalyco/opencode/github@latest
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          model: anthropic/claude-sonnet-4-20250514
+          use_github_token: true
+          prompt: |
+            Review this pull request:
+            - Check for code quality issues
+            - Look for potential bugs
+            - Suggest improvements
+```
+
+Với events `pull_request`, nếu không cung cấp `prompt`, OpenCode mặc định sẽ review pull request.
+
+---
+
+### Ví dụ Issues Triage
+
+Tự động triage issues mới. Ví dụ này lọc các account cũ hơn 30 ngày để giảm spam:
+
+```yaml title=".github/workflows/opencode-triage.yml"
+name: Issue Triage
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Check account age
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const user = await github.rest.users.getByUsername({
+              username: context.payload.issue.user.login
+            });
+            const created = new Date(user.data.created_at);
+            const days = (Date.now() - created) / (1000 * 60 * 60 * 24);
+            return days >= 30;
+          result-encoding: string
+
+      - uses: actions/checkout@v6
+        if: steps.check.outputs.result == 'true'
+        with:
+          persist-credentials: false
+
+      - uses: anomalyco/opencode/github@latest
+        if: steps.check.outputs.result == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        with:
+          model: anthropic/claude-sonnet-4-20250514
+          prompt: |
+            Review this issue. If there's a clear fix or relevant docs:
+            - Provide documentation links
+            - Add error handling guidance for code examples
+            Otherwise, do not comment.
+```
+
+Với events `issues`, input `prompt` là **bắt buộc** vì không có comment để trích xuất chỉ dẫn.
+
+---
+
+## Custom prompts
+
+Ghi đè prompt mặc định để tùy chỉnh hành vi của OpenCode cho workflow của bạn.
+
+```yaml title=".github/workflows/opencode.yml"
+- uses: anomalyco/opencode/github@latest
+  with:
+    model: anthropic/claude-sonnet-4-5
+    prompt: |
+      Review this pull request:
+      - Check for code quality issues
+      - Look for potential bugs
+      - Suggest improvements
+```
+
+Điều này hữu ích để áp dụng tiêu chí review, coding standards, hoặc focus areas cụ thể phù hợp với dự án của bạn.
+
+---
+
+## Ví dụ
+
+Dưới đây là một số ví dụ về cách bạn có thể dùng OpenCode trong GitHub.
+
+- **Giải thích một issue**
+
+  Thêm comment này trong một GitHub issue.
+
+  ```
+  /opencode explain this issue
+  ```
+
+  OpenCode sẽ đọc toàn bộ thread, bao gồm mọi comment, và trả lời bằng một giải thích rõ ràng.
+
+- **Sửa một issue**
+
+  Trong một GitHub issue, hãy nói:
+
+  ```
+  /opencode fix this
+  ```
+
+  Và OpenCode sẽ tạo một branch mới, triển khai các thay đổi, và mở một PR với các thay đổi đó.
+
+- **Review PRs và thực hiện thay đổi**
+
+  Để lại comment sau trên một GitHub PR.
+
+  ```
+  Delete the attachment from S3 when the note is removed /oc
+  ```
+
+  OpenCode sẽ triển khai thay đổi được yêu cầu và commit nó vào cùng PR.
+
+- **Review các dòng code cụ thể**
+
+  Để lại comment trực tiếp trên các dòng code trong tab "Files" của PR. OpenCode tự động phát hiện file, line numbers, và diff context để cung cấp response chính xác.
+
+  ```
+  [Comment on specific lines in Files tab]
+  /oc add error handling here
+  ```
+
+  Khi comment trên các dòng cụ thể, OpenCode nhận:
+  - File chính xác đang được review
+  - Các dòng code cụ thể
+  - Diff context xung quanh
+  - Thông tin line number
+
+  Điều này cho phép request có mục tiêu hơn mà không cần chỉ định thủ công file paths hoặc line numbers.

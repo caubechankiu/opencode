@@ -1,0 +1,284 @@
+---
+title: Zen
+description: Danh sách model được OpenCode tuyển chọn.
+---
+
+import config from "../../../../config.mjs"
+export const console = config.console
+export const email = `mailto:${config.email}`
+
+OpenCode Zen là danh sách các model đã được đội ngũ OpenCode kiểm thử và xác minh.
+
+Zen hoạt động như bất kỳ provider nào khác trong OpenCode. Bạn đăng nhập vào OpenCode Zen và nhận API key. Nó **hoàn toàn tùy chọn** và bạn không cần dùng Zen để dùng OpenCode.
+
+---
+
+## Bối cảnh
+
+Có rất nhiều model ngoài kia, nhưng chỉ một số ít trong đó hoạt động tốt như coding agent. Ngoài ra, hầu hết provider được cấu hình rất khác nhau; vì vậy bạn nhận được hiệu năng và chất lượng rất khác nhau.
+
+:::tip
+Chúng tôi đã kiểm thử một nhóm model và provider được chọn lọc hoạt động tốt với OpenCode.
+:::
+
+Vì vậy, nếu bạn dùng model thông qua một dịch vụ như OpenRouter, bạn không bao giờ có thể chắc chắn mình đang nhận được phiên bản tốt nhất của model mong muốn.
+
+Để giải quyết điều này, chúng tôi đã làm vài việc:
+
+1. Chúng tôi kiểm thử một nhóm model được chọn lọc và trao đổi với đội ngũ của họ về cách chạy chúng tốt nhất.
+2. Sau đó, chúng tôi làm việc với một vài provider để đảm bảo các model này được phục vụ đúng cách.
+3. Cuối cùng, chúng tôi benchmark tổ hợp model/provider và đưa ra danh sách mà chúng tôi thấy tự tin khuyến nghị.
+
+OpenCode Zen là một AI gateway cho bạn quyền truy cập các model này.
+
+---
+
+## Cách hoạt động
+
+OpenCode Zen hoạt động như bất kỳ provider nào khác trong OpenCode.
+
+1. Bạn đăng nhập vào **<a href={console}>OpenCode Zen</a>**, thêm thông tin thanh toán và sao chép API key.
+2. Bạn chạy lệnh `/connect` trong TUI, chọn OpenCode Zen, rồi dán API key.
+3. Chạy `/models` trong TUI để xem danh sách model chúng tôi khuyến nghị.
+
+Bạn được tính phí theo từng request và có thể thêm credit vào tài khoản.
+
+---
+
+## Endpoint
+
+Bạn cũng có thể truy cập model của chúng tôi thông qua các API endpoint sau.
+
+| Model                  | Model ID               | Endpoint                                             | AI SDK Package              |
+| ---------------------- | ---------------------- | ---------------------------------------------------- | --------------------------- |
+| GPT 5.6 Sol            | gpt-5.6-sol            | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.6 Terra          | gpt-5.6-terra          | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.6 Luna           | gpt-5.6-luna           | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.5                | gpt-5.5                | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.5 Pro            | gpt-5.5-pro            | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.4                | gpt-5.4                | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.4 Pro            | gpt-5.4-pro            | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.4 Mini           | gpt-5.4-mini           | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.4 Nano           | gpt-5.4-nano           | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.3 Codex          | gpt-5.3-codex          | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.3 Codex Spark    | gpt-5.3-codex-spark    | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.2                | gpt-5.2                | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.2 Codex          | gpt-5.2-codex          | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.1                | gpt-5.1                | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.1 Codex          | gpt-5.1-codex          | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.1 Codex Max      | gpt-5.1-codex-max      | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5.1 Codex Mini     | gpt-5.1-codex-mini     | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5                  | gpt-5                  | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5 Codex            | gpt-5-codex            | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| GPT 5 Nano             | gpt-5-nano             | `https://opencode.ai/zen/v1/responses`               | `@ai-sdk/openai`            |
+| Claude Fable 5         | claude-fable-5         | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Claude Opus 4.8        | claude-opus-4-8        | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Claude Opus 4.7        | claude-opus-4-7        | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Claude Opus 4.6        | claude-opus-4-6        | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Claude Opus 4.5        | claude-opus-4-5        | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Claude Sonnet 5        | claude-sonnet-5        | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Claude Sonnet 4.6      | claude-sonnet-4-6      | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Claude Sonnet 4.5      | claude-sonnet-4-5      | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Claude Haiku 4.5       | claude-haiku-4-5       | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Gemini 3.5 Flash       | gemini-3.5-flash       | `https://opencode.ai/zen/v1/models/gemini-3.5-flash` | `@ai-sdk/google`            |
+| Gemini 3.1 Pro         | gemini-3.1-pro         | `https://opencode.ai/zen/v1/models/gemini-3.1-pro`   | `@ai-sdk/google`            |
+| Gemini 3 Flash         | gemini-3-flash         | `https://opencode.ai/zen/v1/models/gemini-3-flash`   | `@ai-sdk/google`            |
+| Grok 4.5               | grok-4.5               | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| Grok Build 0.1         | grok-build-0.1         | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| Qwen3.7 Max            | qwen3.7-max            | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Qwen3.7 Plus           | qwen3.7-plus           | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Qwen3.6 Plus           | qwen3.6-plus           | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| Qwen3.5 Plus           | qwen3.5-plus           | `https://opencode.ai/zen/v1/messages`                | `@ai-sdk/anthropic`         |
+| DeepSeek V4 Pro        | deepseek-v4-pro        | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| DeepSeek V4 Flash      | deepseek-v4-flash      | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| MiniMax M3             | minimax-m3             | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| MiniMax M2.7           | minimax-m2.7           | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| MiniMax M2.5           | minimax-m2.5           | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| GLM 5.2                | glm-5.2                | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| GLM 5.1                | glm-5.1                | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| GLM 5                  | glm-5                  | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| Kimi K2.5              | kimi-k2.5              | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| Kimi K2.6              | kimi-k2.6              | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| Kimi K2.7 Code         | kimi-k2.7-code         | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| Big Pickle             | big-pickle             | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| MiMo-V2.5 Free         | mimo-v2.5-free         | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| North Mini Code Free   | north-mini-code-free   | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| Nemotron 3 Ultra Free  | nemotron-3-ultra-free  | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+| DeepSeek V4 Flash Free | deepseek-v4-flash-free | `https://opencode.ai/zen/v1/chat/completions`        | `@ai-sdk/openai-compatible` |
+
+[model id](/docs/config/#models) trong cấu hình OpenCode của bạn dùng định dạng `opencode/<model-id>`. Ví dụ, với GPT 5.5, bạn sẽ dùng `opencode/gpt-5.5` trong cấu hình.
+
+---
+
+### Models
+
+Bạn có thể lấy danh sách đầy đủ các model hiện có và metadata của chúng từ:
+
+```
+https://opencode.ai/zen/v1/models
+```
+
+---
+
+## Giá
+
+Chúng tôi hỗ trợ mô hình trả theo mức dùng. Dưới đây là giá **cho mỗi 1M token**.
+
+| Model                             | Input  | Output  | Cached Read | Cached Write |
+| --------------------------------- | ------ | ------- | ----------- | ------------ |
+| Big Pickle                        | Free   | Free    | Free        | -            |
+| DeepSeek V4 Flash Free            | Free   | Free    | Free        | -            |
+| MiMo-V2.5 Free                    | Free   | Free    | Free        | -            |
+| North Mini Code Free              | Free   | Free    | Free        | -            |
+| Nemotron 3 Ultra Free             | Free   | Free    | Free        | -            |
+| MiniMax M3                        | $0.30  | $1.20   | $0.06       | -            |
+| MiniMax M2.7                      | $0.30  | $1.20   | $0.06       | -            |
+| MiniMax M2.5                      | $0.30  | $1.20   | $0.06       | -            |
+| GLM 5.2                           | $1.40  | $4.40   | $0.26       | -            |
+| GLM 5.1                           | $1.40  | $4.40   | $0.26       | -            |
+| GLM 5                             | $1.00  | $3.20   | $0.20       | -            |
+| Kimi K2.7 Code                    | $0.95  | $4.00   | $0.19       | -            |
+| Kimi K2.6                         | $0.95  | $4.00   | $0.16       | -            |
+| Kimi K2.5                         | $0.60  | $3.00   | $0.10       | -            |
+| Qwen3.7 Max                       | $2.50  | $7.50   | $0.50       | $3.125       |
+| Qwen3.7 Plus                      | $0.40  | $1.60   | $0.04       | $0.50        |
+| Qwen3.6 Plus                      | $0.50  | $3.00   | $0.05       | $0.625       |
+| Qwen3.5 Plus                      | $0.20  | $1.20   | $0.02       | $0.25        |
+| DeepSeek V4 Pro                   | $1.74  | $3.48   | $0.145      | -            |
+| DeepSeek V4 Flash                 | $0.14  | $0.28   | $0.028      | -            |
+| Claude Fable 5                    | $10.00 | $50.00  | $1.00       | $12.50       |
+| Claude Opus 4.8                   | $5.00  | $25.00  | $0.50       | $6.25        |
+| Claude Opus 4.7                   | $5.00  | $25.00  | $0.50       | $6.25        |
+| Claude Opus 4.6                   | $5.00  | $25.00  | $0.50       | $6.25        |
+| Claude Opus 4.5                   | $5.00  | $25.00  | $0.50       | $6.25        |
+| Claude Sonnet 5                   | $2.00  | $10.00  | $0.20       | $2.50        |
+| Claude Sonnet 4.6                 | $3.00  | $15.00  | $0.30       | $3.75        |
+| Claude Sonnet 4.5 (≤ 200K tokens) | $3.00  | $15.00  | $0.30       | $3.75        |
+| Claude Sonnet 4.5 (> 200K tokens) | $6.00  | $22.50  | $0.60       | $7.50        |
+| Claude Haiku 4.5                  | $1.00  | $5.00   | $0.10       | $1.25        |
+| Gemini 3.5 Flash                  | $1.50  | $9.00   | $0.15       | -            |
+| Gemini 3.1 Pro (≤ 200K tokens)    | $2.00  | $12.00  | $0.20       | -            |
+| Gemini 3.1 Pro (> 200K tokens)    | $4.00  | $18.00  | $0.40       | -            |
+| Gemini 3 Flash                    | $0.50  | $3.00   | $0.05       | -            |
+| Grok 4.5 (≤ 200K tokens)          | $2.00  | $6.00   | $0.30       | -            |
+| Grok 4.5 (> 200K tokens)          | $4.00  | $12.00  | $0.60       | -            |
+| Grok Build 0.1                    | $1.00  | $2.00   | $0.20       | -            |
+| GPT 5.6 Sol (≤ 272K tokens)       | $5.00  | $30.00  | $0.50       | $6.25        |
+| GPT 5.6 Sol (> 272K tokens)       | $10.00 | $45.00  | $1.00       | $12.50       |
+| GPT 5.6 Terra (≤ 272K tokens)     | $2.50  | $15.00  | $0.25       | $3.125       |
+| GPT 5.6 Terra (> 272K tokens)     | $5.00  | $22.50  | $0.50       | $6.25        |
+| GPT 5.6 Luna (≤ 272K tokens)      | $1.00  | $6.00   | $0.10       | $1.25        |
+| GPT 5.6 Luna (> 272K tokens)      | $2.00  | $9.00   | $0.20       | $2.50        |
+| GPT 5.5 (≤ 272K tokens)           | $5.00  | $30.00  | $0.50       | -            |
+| GPT 5.5 (> 272K tokens)           | $10.00 | $45.00  | $1.00       | -            |
+| GPT 5.5 Pro                       | $30.00 | $180.00 | $30.00      | -            |
+| GPT 5.4 (≤ 272K tokens)           | $2.50  | $15.00  | $0.25       | -            |
+| GPT 5.4 (> 272K tokens)           | $5.00  | $22.50  | $0.50       | -            |
+| GPT 5.4 Pro                       | $30.00 | $180.00 | $30.00      | -            |
+| GPT 5.4 Mini                      | $0.75  | $4.50   | $0.075      | -            |
+| GPT 5.4 Nano                      | $0.20  | $1.25   | $0.02       | -            |
+| GPT 5.3 Codex Spark               | $1.75  | $14.00  | $0.175      | -            |
+| GPT 5.3 Codex                     | $1.75  | $14.00  | $0.175      | -            |
+| GPT 5.2                           | $1.75  | $14.00  | $0.175      | -            |
+| GPT 5.2 Codex                     | $1.75  | $14.00  | $0.175      | -            |
+| GPT 5.1                           | $1.07  | $8.50   | $0.107      | -            |
+| GPT 5.1 Codex                     | $1.07  | $8.50   | $0.107      | -            |
+| GPT 5.1 Codex Max                 | $1.25  | $10.00  | $0.125      | -            |
+| GPT 5.1 Codex Mini                | $0.25  | $2.00   | $0.025      | -            |
+| GPT 5                             | $1.07  | $8.50   | $0.107      | -            |
+| GPT 5 Codex                       | $1.07  | $8.50   | $0.107      | -            |
+| GPT 5 Nano                        | $0.05  | $0.40   | $0.005      | -            |
+
+Bạn có thể thấy _Claude Haiku 3.5_ trong lịch sử sử dụng. Đây là một [model chi phí thấp](/docs/config/#models) được dùng để tạo tiêu đề cho các phiên của bạn.
+
+:::note
+Phí thẻ tín dụng được chuyển tiếp đúng bằng chi phí thực tế (4.4% + $0.30 mỗi giao dịch); chúng tôi không thu thêm gì ngoài khoản đó.
+:::
+
+Các model miễn phí:
+
+- DeepSeek V4 Flash Free có sẵn trên OpenCode trong thời gian giới hạn. Đội ngũ đang dùng giai đoạn này để thu thập phản hồi và cải thiện model.
+- MiMo-V2.5 Free có sẵn trên OpenCode trong thời gian giới hạn. Đội ngũ đang dùng giai đoạn này để thu thập phản hồi và cải thiện model.
+- North Mini Code Free có sẵn trên OpenCode trong thời gian giới hạn. Đội ngũ đang dùng giai đoạn này để thu thập phản hồi và cải thiện model.
+- Nemotron 3 Ultra Free có sẵn trên OpenCode trong thời gian giới hạn. Đội ngũ đang dùng giai đoạn này để thu thập phản hồi và cải thiện model.
+- Big Pickle là một stealth model miễn phí trên OpenCode trong thời gian giới hạn. Đội ngũ đang dùng giai đoạn này để thu thập phản hồi và cải thiện model.
+
+<a href={email}>Liên hệ với chúng tôi</a> nếu bạn có câu hỏi.
+
+---
+
+### Auto-reload
+
+Nếu số dư của bạn xuống dưới $5, Zen sẽ tự động nạp lại $20.
+
+Bạn có thể thay đổi số tiền auto-reload. Bạn cũng có thể tắt hoàn toàn auto-reload.
+
+---
+
+### Giới hạn hàng tháng
+
+Bạn cũng có thể đặt giới hạn sử dụng hàng tháng cho toàn bộ workspace và cho từng thành viên trong đội.
+
+Ví dụ, giả sử bạn đặt giới hạn sử dụng hàng tháng là $20, Zen sẽ không dùng quá $20 trong một tháng. Nhưng nếu bạn bật auto-reload, Zen có thể sẽ tính phí bạn nhiều hơn $20 nếu số dư xuống dưới $5.
+
+---
+
+### Model đã deprecated
+
+| Model              | Ngày deprecated   |
+| ------------------ | ----------------- |
+| GPT 5.2 Codex      | July 23, 2026     |
+| GPT 5.1 Codex      | July 23, 2026     |
+| GPT 5.1 Codex Max  | July 23, 2026     |
+| GPT 5.1 Codex Mini | July 23, 2026     |
+| GPT 5 Codex        | July 23, 2026     |
+| Claude Opus 4.1    | August 5, 2026    |
+| Claude Sonnet 4    | June 15, 2026     |
+| Claude Haiku 3.5   | February 16, 2026 |
+| Gemini 3 Pro       | March 9, 2026     |
+| MiniMax M2.5       | August 5, 2026    |
+| MiniMax M2.1       | March 15, 2026    |
+| GLM 5              | May 14, 2026      |
+| GLM 4.7            | March 15, 2026    |
+| GLM 4.6            | March 15, 2026    |
+| Kimi K2.5          | August 5, 2026    |
+| Kimi K2 Thinking   | March 6, 2026     |
+| Kimi K2            | March 6, 2026     |
+| Qwen3 Coder 480B   | February 6, 2026  |
+
+---
+
+## Quyền riêng tư
+
+Tất cả model của chúng tôi được host ở US. Các provider của chúng tôi tuân theo chính sách zero-retention và không dùng dữ liệu của bạn để huấn luyện model, với các ngoại lệ sau:
+
+- Big Pickle: Trong giai đoạn miễn phí, dữ liệu thu thập có thể được dùng để cải thiện model.
+- DeepSeek V4 Flash Free: Trong giai đoạn miễn phí, dữ liệu thu thập có thể được dùng để cải thiện model.
+- MiMo-V2.5 Free: Trong giai đoạn miễn phí, dữ liệu thu thập có thể được dùng để cải thiện model.
+- North Mini Code Free: Trong giai đoạn miễn phí, dữ liệu thu thập có thể được lưu giữ và dùng để cải thiện model. Không gửi dữ liệu cá nhân hoặc bí mật. Xem [Terms of Use](https://cohere.com/terms-of-use) và [Privacy Policy](https://cohere.com/privacy) của chúng tôi.
+- Nemotron 3 Ultra Free (NVIDIA free endpoints): Chỉ dùng thử — không gửi dữ liệu cá nhân hoặc bí mật. Việc sử dụng của bạn được ghi log cho mục đích bảo mật và để cải thiện sản phẩm, dịch vụ của NVIDIA. Dữ liệu phiên được ghi log cho mục đích cải thiện không được liên kết với danh tính hoặc bất kỳ định danh bền vững nào của bạn. Để biết thêm thông tin về thực hành xử lý dữ liệu của chúng tôi, hãy xem [Privacy Policy](https://assets.ngc.nvidia.com/products/api-catalog/legal/NVIDIA%20API%20Trial%20Terms%20of%20Service.pdf). Bằng cách tương tác với endpoint này, bạn đồng ý để chúng tôi thu thập, ghi lại và sử dụng thông tin đó cũng như [NVIDIA API Trial Terms of Service](https://assets.ngc.nvidia.com/products/api-catalog/legal/NVIDIA%20API%20Trial%20Terms%20of%20Service.pdf).
+- OpenAI APIs: Request được lưu giữ trong 30 ngày theo [OpenAI's Data Policies](https://platform.openai.com/docs/guides/your-data).
+- Anthropic APIs: Request được lưu giữ trong 30 ngày theo [Anthropic's Data Policies](https://docs.anthropic.com/en/docs/claude-code/data-usage).
+
+---
+
+## Dành cho đội nhóm
+
+Zen cũng hoạt động rất tốt cho đội nhóm. Bạn có thể mời đồng đội, gán vai trò, tuyển chọn model mà đội của bạn dùng, và nhiều hơn nữa.
+
+:::note
+Workspaces hiện đang miễn phí cho đội nhóm như một phần của beta.
+:::
+
+Quản lý workspace của bạn hiện đang miễn phí cho đội nhóm như một phần của beta. Chúng tôi sẽ chia sẻ thêm chi tiết về giá trong thời gian tới.
+
+---
+
+### Vai trò
+
+Bạn có thể mời đồng đội vào workspace và gán vai trò:
+
+- **Admin**: Quản lý model, thành viên, API key và thanh toán
+- **Member**: Chỉ quản lý API key của riêng họ
+
+Admin cũng có thể đặt giới hạn chi tiêu hàng tháng cho từng thành viên để kiểm soát chi phí.

@@ -1,0 +1,2474 @@
+---
+title: Nhà cung cấp
+description: Dùng bất kỳ nhà cung cấp LLM nào trong OpenCode.
+---
+
+import config from "../../../../config.mjs"
+export const console = config.console
+
+OpenCode dùng [AI SDK](https://ai-sdk.dev/) và [Models.dev](https://models.dev) để hỗ trợ **hơn 75 nhà cung cấp LLM**, đồng thời hỗ trợ chạy mô hình cục bộ.
+
+Để thêm một nhà cung cấp, bạn cần:
+
+1. Thêm API keys cho nhà cung cấp bằng lệnh `/connect`.
+2. Cấu hình nhà cung cấp trong cấu hình OpenCode của bạn.
+
+---
+
+### Thông tin xác thực
+
+Khi bạn thêm API keys của một nhà cung cấp bằng lệnh `/connect`, chúng được lưu trong `~/.local/share/opencode/auth.json`.
+
+---
+
+### Cấu hình
+
+Bạn có thể tùy chỉnh các nhà cung cấp thông qua phần `provider` trong cấu hình OpenCode.
+
+---
+
+#### Base URL
+
+Bạn có thể tùy chỉnh base URL cho bất kỳ nhà cung cấp nào bằng cách đặt tùy chọn `baseURL`. Điều này hữu ích khi dùng dịch vụ proxy hoặc endpoint tùy chỉnh.
+
+```json title="opencode.json" {6}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "anthropic": {
+      "options": {
+        "baseURL": "https://api.anthropic.com/v1"
+      }
+    }
+  }
+}
+```
+
+---
+
+#### Ẩn mô hình
+
+Bạn có thể ẩn các mô hình cụ thể khỏi bộ chọn `/models` của một nhà cung cấp bằng tùy chọn `blacklist`. Điều này hữu ích khi nhà cung cấp hiển thị các mô hình bạn không muốn dùng hoặc chọn.
+
+```json title="opencode.json" {6}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "anthropic": {
+      "blacklist": ["claude-opus-4-20250514"]
+    }
+  }
+}
+```
+
+Tùy chọn ngược lại, `whitelist`, sẽ ẩn mọi mô hình ngoại trừ các mô hình được liệt kê.
+
+```json title="opencode.json" {6}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "anthropic": {
+      "whitelist": ["claude-sonnet-4-20250514"]
+    }
+  }
+}
+```
+
+Cả hai tùy chọn đều nhận một mảng model IDs — chính là các ID hiển thị trong bộ chọn `/models`.
+
+- `blacklist` xóa các mô hình được liệt kê khỏi bộ chọn.
+- `whitelist` chỉ giữ các mô hình được liệt kê và ẩn phần còn lại.
+- Bạn có thể kết hợp chúng: `whitelist` thu hẹp tập hợp, rồi `blacklist` xóa các mục khỏi tập hợp đó.
+
+---
+
+## OpenCode Zen
+
+OpenCode Zen là danh sách các mô hình do đội ngũ OpenCode cung cấp, đã được kiểm thử và xác minh là hoạt động tốt với OpenCode. [Tìm hiểu thêm](/docs/zen).
+
+:::tip
+Nếu bạn mới bắt đầu, chúng tôi khuyên nên khởi đầu với OpenCode Zen.
+:::
+
+1. Chạy lệnh `/connect` trong TUI, chọn `OpenCode Zen`, rồi truy cập [opencode.ai/auth](https://opencode.ai/zen).
+
+   ```txt
+   /connect
+   ```
+
+2. Đăng nhập, thêm thông tin thanh toán, rồi sao chép API key của bạn.
+
+3. Dán API key của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy `/models` trong TUI để xem danh sách mô hình chúng tôi đề xuất.
+
+   ```txt
+   /models
+   ```
+
+Nó hoạt động như mọi nhà cung cấp khác trong OpenCode và hoàn toàn không bắt buộc dùng.
+
+---
+
+## OpenCode Go
+
+OpenCode Go là gói đăng ký chi phí thấp, cung cấp quyền truy cập ổn định vào các mô hình open coding phổ biến do đội ngũ OpenCode cung cấp, đã được kiểm thử và xác minh là hoạt động tốt với OpenCode.
+
+1. Chạy lệnh `/connect` trong TUI, chọn `OpenCode Go`, rồi truy cập [opencode.ai/auth](https://opencode.ai/zen).
+
+   ```txt
+   /connect
+   ```
+
+2. Đăng nhập, thêm thông tin thanh toán, rồi sao chép API key của bạn.
+
+3. Dán API key của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy `/models` trong TUI để xem danh sách mô hình chúng tôi đề xuất.
+
+   ```txt
+   /models
+   ```
+
+Nó hoạt động như mọi nhà cung cấp khác trong OpenCode và hoàn toàn không bắt buộc dùng.
+
+---
+
+## Danh mục
+
+Hãy xem chi tiết một số nhà cung cấp. Nếu bạn muốn thêm một nhà cung cấp vào danh sách, cứ thoải mái mở PR.
+
+:::note
+Không thấy nhà cung cấp ở đây? Hãy gửi PR.
+:::
+
+---
+
+### 302.AI
+
+1. Truy cập [302.AI console](https://302.ai/), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **302.AI**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key 302.AI của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Amazon Bedrock
+
+Để dùng Amazon Bedrock với OpenCode:
+
+1. Truy cập **Model catalog** trong Amazon Bedrock console và yêu cầu quyền truy cập các mô hình bạn muốn.
+
+   :::tip
+   Bạn cần có quyền truy cập mô hình mong muốn trong Amazon Bedrock.
+   :::
+
+2. **Cấu hình xác thực** bằng một trong các phương thức sau:
+
+   ***
+
+   #### Biến môi trường (bắt đầu nhanh)
+
+   Đặt một trong các biến môi trường này khi chạy opencode:
+
+   ```bash
+   # Option 1: Using AWS access keys
+   AWS_ACCESS_KEY_ID=XXX AWS_SECRET_ACCESS_KEY=YYY opencode
+
+   # Option 2: Using named AWS profile
+   AWS_PROFILE=my-profile opencode
+
+   # Option 3: Using Bedrock bearer token
+   AWS_BEARER_TOKEN_BEDROCK=XXX opencode
+   ```
+
+   Hoặc thêm chúng vào bash profile của bạn:
+
+   ```bash title="~/.bash_profile"
+   export AWS_PROFILE=my-dev-profile
+   export AWS_REGION=us-east-1
+   ```
+
+   ***
+
+   #### Tệp cấu hình (khuyến nghị)
+
+   Với cấu hình riêng cho dự án hoặc cấu hình lâu dài, dùng `opencode.json`:
+
+   ```json title="opencode.json"
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "provider": {
+       "amazon-bedrock": {
+         "options": {
+           "region": "us-east-1",
+           "profile": "my-aws-profile"
+         }
+       }
+     }
+   }
+   ```
+
+   **Tùy chọn khả dụng:**
+   - `region` - AWS region (ví dụ `us-east-1`, `eu-west-1`)
+   - `profile` - AWS named profile từ `~/.aws/credentials`
+   - `endpoint` - URL endpoint tùy chỉnh cho VPC endpoints (alias cho tùy chọn chung `baseURL`)
+
+   :::tip
+   Tùy chọn trong tệp cấu hình được ưu tiên hơn biến môi trường.
+   :::
+
+   ***
+
+   #### Nâng cao: VPC Endpoints
+
+   Nếu bạn đang dùng VPC endpoints cho Bedrock:
+
+   ```json title="opencode.json"
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "provider": {
+       "amazon-bedrock": {
+         "options": {
+           "region": "us-east-1",
+           "profile": "production",
+           "endpoint": "https://bedrock-runtime.us-east-1.vpce-xxxxx.amazonaws.com"
+         }
+       }
+     }
+   }
+   ```
+
+   :::note
+   Tùy chọn `endpoint` là alias cho tùy chọn chung `baseURL`, dùng thuật ngữ riêng của AWS. Nếu cả `endpoint` và `baseURL` đều được chỉ định, `endpoint` được ưu tiên.
+   :::
+
+   ***
+
+   #### Phương thức xác thực
+   - **`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`**: Tạo IAM user và tạo access keys trong AWS Console
+   - **`AWS_PROFILE`**: Dùng named profiles từ `~/.aws/credentials`. Trước tiên cấu hình bằng `aws configure --profile my-profile` hoặc `aws sso login`
+   - **`AWS_BEARER_TOKEN_BEDROCK`**: Tạo API keys dài hạn từ Amazon Bedrock console
+   - **`AWS_WEB_IDENTITY_TOKEN_FILE` / `AWS_ROLE_ARN`**: Dành cho EKS IRSA (IAM Roles for Service Accounts) hoặc môi trường Kubernetes khác có OIDC federation. Các biến môi trường này được Kubernetes tự động inject khi dùng service account annotations.
+
+   ***
+
+   #### Thứ tự ưu tiên xác thực
+
+   Amazon Bedrock dùng thứ tự ưu tiên xác thực sau:
+   1. **Bearer Token** - biến môi trường `AWS_BEARER_TOKEN_BEDROCK` hoặc token từ lệnh `/connect`
+   2. **AWS Credential Chain** - Profile, access keys, shared credentials, IAM roles, Web Identity Tokens (EKS IRSA), instance metadata
+
+   :::note
+   Khi bearer token được đặt (qua `/connect` hoặc `AWS_BEARER_TOKEN_BEDROCK`), nó được ưu tiên hơn mọi phương thức AWS credential, bao gồm cả profiles đã cấu hình.
+   :::
+
+3. Chạy lệnh `/models` để chọn mô hình bạn muốn.
+
+   ```txt
+   /models
+   ```
+
+:::note
+Với custom inference profiles, hãy dùng tên mô hình và nhà cung cấp trong khóa rồi đặt thuộc tính `id` thành arn. Điều này đảm bảo cache chính xác.
+:::
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "amazon-bedrock": {
+      // ...
+      "models": {
+        "anthropic-claude-sonnet-4.5": {
+          "id": "arn:aws:bedrock:us-east-1:xxx:application-inference-profile/yyy"
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+### Anthropic
+
+1. Sau khi đăng ký, chạy lệnh `/connect` và chọn Anthropic.
+
+   ```txt
+   /connect
+   ```
+
+2. Tại đây bạn có thể chọn tùy chọn **Claude Pro/Max**; trình duyệt sẽ mở ra và yêu cầu bạn xác thực.
+
+   ```txt
+   ┌ Select auth method
+   │
+   │ Manually enter API Key
+   └
+   ```
+
+3. Bây giờ mọi mô hình Anthropic sẽ khả dụng khi bạn dùng lệnh `/models`.
+
+   ```txt
+   /models
+   ```
+
+:::info
+Có các plugin cho phép bạn dùng mô hình Claude Pro/Max với OpenCode. Anthropic cấm rõ ràng việc này.
+
+Các phiên bản OpenCode trước đây đi kèm những plugin này, nhưng từ 1.3.0 thì không còn như vậy.
+
+Các công ty khác hỗ trợ quyền tự do lựa chọn công cụ lập trình - bạn có thể dùng các gói đăng ký sau trong OpenCode mà không cần thiết lập:
+
+- ChatGPT Plus
+- Github Copilot
+- Gitlab Duo
+  :::
+
+---
+
+### Atomic Chat
+
+Bạn có thể cấu hình opencode để dùng mô hình cục bộ thông qua [Atomic Chat](https://atomic.chat), một ứng dụng desktop chạy LLM cục bộ phía sau máy chủ API tương thích OpenAI (endpoint mặc định `http://127.0.0.1:1337/v1`).
+
+```json title="opencode.json" "atomic-chat" {5, 6, 8, 10-14}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "atomic-chat": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Atomic Chat (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:1337/v1"
+      },
+      "models": {
+        "<your-model-id>": {
+          "name": "<your-model-name>"
+        }
+      }
+    }
+  }
+}
+```
+
+Trong ví dụ này:
+
+- `atomic-chat` là custom provider ID. Đây có thể là bất kỳ chuỗi nào bạn muốn.
+- `npm` chỉ định package dùng cho nhà cung cấp này. Ở đây, `@ai-sdk/openai-compatible` được dùng cho mọi API tương thích OpenAI.
+- `name` là tên hiển thị của nhà cung cấp trong UI.
+- `options.baseURL` là endpoint cho máy chủ cục bộ. Change the host and port to match your Atomic Chat setup.
+- `models` là map từ model IDs tới tên hiển thị. Mỗi ID phải khớp với `id` do `GET /v1/models` trả về — chạy `curl http://127.0.0.1:1337/v1/models` để liệt kê các ids hiện được tải trong Atomic Chat.
+
+:::tip
+Nếu tool calls không hoạt động tốt, hãy chọn một mô hình đã tải có hỗ trợ tool-calling mạnh (ví dụ một biến thể Qwen-Coder hoặc DeepSeek-Coder).
+:::
+
+---
+
+### Azure OpenAI
+
+:::note
+Nếu gặp lỗi "I'm sorry, but I cannot assist with that request", hãy thử đổi content filter từ **DefaultV2** sang **Default** trong Azure resource của bạn.
+:::
+
+1. Truy cập [Azure portal](https://portal.azure.com/) và tạo một **Azure OpenAI** resource. Bạn sẽ cần:
+   - **Resource name**: Giá trị này trở thành một phần của API endpoint (`https://RESOURCE_NAME.openai.azure.com/`)
+   - **API key**: `KEY 1` hoặc `KEY 2` từ resource của bạn
+
+2. Đi tới [Azure AI Foundry](https://ai.azure.com/) và deploy một mô hình.
+
+   :::note
+   Deployment name phải khớp với model name để opencode hoạt động đúng.
+   :::
+
+3. Chạy lệnh `/connect` và tìm **Azure**.
+
+   ```txt
+   /connect
+   ```
+
+4. Nhập API key của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+5. Đặt resource name của bạn làm biến môi trường:
+
+   ```bash
+   AZURE_RESOURCE_NAME=XXX opencode
+   ```
+
+   Hoặc thêm nó vào bash profile của bạn:
+
+   ```bash title="~/.bash_profile"
+   export AZURE_RESOURCE_NAME=XXX
+   ```
+
+6. Chạy lệnh `/models` để chọn mô hình đã deploy.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Azure Cognitive Services
+
+1. Truy cập [Azure portal](https://portal.azure.com/) và tạo một **Azure OpenAI** resource. Bạn sẽ cần:
+   - **Resource name**: Giá trị này trở thành một phần của API endpoint (`https://AZURE_COGNITIVE_SERVICES_RESOURCE_NAME.cognitiveservices.azure.com/`)
+   - **API key**: `KEY 1` hoặc `KEY 2` từ resource của bạn
+
+2. Đi tới [Azure AI Foundry](https://ai.azure.com/) và deploy một mô hình.
+
+   :::note
+   Deployment name phải khớp với model name để opencode hoạt động đúng.
+   :::
+
+3. Chạy lệnh `/connect` và tìm **Azure Cognitive Services**.
+
+   ```txt
+   /connect
+   ```
+
+4. Nhập API key của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+5. Đặt resource name của bạn làm biến môi trường:
+
+   ```bash
+   AZURE_COGNITIVE_SERVICES_RESOURCE_NAME=XXX opencode
+   ```
+
+   Hoặc thêm nó vào bash profile của bạn:
+
+   ```bash title="~/.bash_profile"
+   export AZURE_COGNITIVE_SERVICES_RESOURCE_NAME=XXX
+   ```
+
+6. Chạy lệnh `/models` để chọn mô hình đã deploy.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Baseten
+
+1. Truy cập [Baseten](https://app.baseten.co/), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **Baseten**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Baseten của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Cerebras
+
+1. Truy cập [Cerebras console](https://inference.cerebras.ai/), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **Cerebras**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Cerebras của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _Qwen 3 Coder 480B_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Cloudflare AI Gateway
+
+Cloudflare AI Gateway cho phép bạn truy cập các mô hình từ OpenAI, Anthropic, Workers AI, và nhiều nhà cung cấp khác thông qua một endpoint hợp nhất. Với [Unified Billing](https://developers.cloudflare.com/ai-gateway/features/unified-billing/), bạn không cần API keys riêng cho từng nhà cung cấp.
+
+1. Truy cập [Cloudflare dashboard](https://dash.cloudflare.com/), đi tới **AI** > **AI Gateway**, rồi tạo gateway mới. Ghi lại **Account ID** và **Gateway ID**.
+
+2. Chạy lệnh `/connect` và tìm **Cloudflare AI Gateway**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập **Account ID** của bạn khi được nhắc.
+
+   ```txt
+   ┌ Enter your Cloudflare Account ID
+   │
+   │
+   └ enter
+   ```
+
+4. Nhập **Gateway ID** của bạn khi được nhắc.
+
+   ```txt
+   ┌ Enter your Cloudflare AI Gateway ID
+   │
+   │
+   └ enter
+   ```
+
+5. Nhập **Cloudflare API token** của bạn.
+
+   ```txt
+   ┌ Gateway API token
+   │
+   │
+   └ enter
+   ```
+
+6. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+   Bạn cũng có thể thêm mô hình thông qua cấu hình opencode.
+
+   ```json title="opencode.json"
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "provider": {
+       "cloudflare-ai-gateway": {
+         "models": {
+           "openai/gpt-4o": {},
+           "anthropic/claude-sonnet-4": {}
+         }
+       }
+     }
+   }
+   ```
+
+   Ngoài ra, bạn có thể đặt biến môi trường thay vì dùng `/connect`.
+
+   ```bash title="~/.bash_profile"
+   export CLOUDFLARE_ACCOUNT_ID=your-32-character-account-id
+   export CLOUDFLARE_GATEWAY_ID=your-gateway-id
+   export CLOUDFLARE_API_TOKEN=your-api-token
+   ```
+
+---
+
+### Cloudflare Workers AI
+
+Cloudflare Workers AI cho phép bạn chạy mô hình AI trực tiếp trên mạng toàn cầu của Cloudflare qua REST API, không cần tài khoản nhà cung cấp riêng cho các mô hình được hỗ trợ.
+
+1. Truy cập [Cloudflare dashboard](https://dash.cloudflare.com/), đi tới **Workers AI**, rồi chọn **Use REST API** để lấy **Account ID** và tạo API token.
+
+2. Chạy lệnh `/connect` và tìm **Cloudflare Workers AI**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập **Account ID** của bạn khi được nhắc.
+
+   ```txt
+   ┌ Enter your Cloudflare Account ID
+   │
+   │
+   └ enter
+   ```
+
+4. Nhập **Cloudflare API key** của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+5. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+   Ngoài ra, bạn có thể đặt biến môi trường thay vì dùng `/connect`.
+
+   ```bash title="~/.bash_profile"
+   export CLOUDFLARE_ACCOUNT_ID=your-32-character-account-id
+   export CLOUDFLARE_API_KEY=your-api-token
+   ```
+
+---
+
+### Cortecs
+
+1. Truy cập [Cortecs console](https://cortecs.ai/), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **Cortecs**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Cortecs của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _Kimi K2 Instruct_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### DeepSeek
+
+1. Truy cập [DeepSeek console](https://platform.deepseek.com/), tạo tài khoản, rồi nhấn **Create new API key**.
+
+2. Chạy lệnh `/connect` và tìm **DeepSeek**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key DeepSeek của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình DeepSeek như _DeepSeek V4 Pro_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Deep Infra
+
+1. Truy cập [Deep Infra dashboard](https://deepinfra.com/dash), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **Deep Infra**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Deep Infra của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### DigitalOcean
+
+[Inference Engine](https://docs.digitalocean.com/products/inference/) của DigitalOcean cung cấp quyền truy cập vào các mô hình mở như GPT-OSS, Llama, Qwen, và DeepSeek, cùng với [Inference Routers](https://docs.digitalocean.com/products/genai-platform/concepts/inference-routers/) tùy chỉnh để định tuyến từng yêu cầu tới mô hình rẻ nhất, nhanh nhất, hoặc phù hợp nhất cho tác vụ.
+
+OpenCode hỗ trợ hai phương thức xác thực:
+
+- **OAuth (Recommended)** — Đăng nhập vào tài khoản DigitalOcean của bạn; OpenCode dùng trực tiếp DigitalOcean API token của bạn cho inference và phát hiện Inference Routers.
+- **Model Access Key** — Dán một key hiện có từ DigitalOcean console.
+
+#### OAuth (Recommended)
+
+1. Chạy lệnh `/connect` và tìm **DigitalOcean**.
+
+   ```txt
+   /connect
+   ```
+
+2. Chọn **Login with DigitalOcean**.
+
+   ```txt
+   ┌ Select auth method
+   │
+   │ Login with DigitalOcean
+   │ Paste Model Access Key
+   └
+   ```
+
+3. Trình duyệt của bạn mở ra để cấp quyền cho OpenCode. Hãy đăng nhập và phê duyệt.
+
+   :::note
+   OpenCode yêu cầu OAuth scopes `genai:read` và `inference:query`. DigitalOcean API token của bạn được dùng trực tiếp cho inference — không tạo Model Access Key riêng.
+   :::
+
+   :::note
+   Inference Routers chỉ xuất hiện trong bộ chọn mô hình sau OAuth. Dán thủ công Model Access Key sẽ không phát hiện routers.
+   :::
+
+4. Chạy lệnh `/models`. Inference Routers của bạn xuất hiện trong phần chọn mô hình theo định dạng `router:`.
+
+   ```txt
+   /models
+   ```
+
+5. Để nhận các Inference Routers mới tạo, chạy lại `/connect` và chọn lại **DigitalOcean**.
+
+#### Dùng Model Access Key
+
+Nếu bạn muốn dán key trực tiếp:
+
+1. Truy cập trang **Manage** trong phần Inference của [DigitalOcean console](https://cloud.digitalocean.com/) và tạo key mới.
+
+2. Chạy lệnh `/connect`, chọn **DigitalOcean**, rồi chọn **Paste Model Access Key**.
+
+   ```txt
+   ┌ Enter your DigitalOcean Model Access Key
+   │
+   │
+   └ enter
+   ```
+
+   :::note
+   Inference Routers không được tự động phát hiện bằng phương thức này. Để chúng xuất hiện trong bộ chọn mô hình, hãy đăng nhập qua OAuth.
+   :::
+
+3. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+#### Biến môi trường
+
+Ngoài ra, hãy đặt Model Access Key của bạn làm biến môi trường.
+
+```bash frame="none"
+export DIGITALOCEAN_ACCESS_TOKEN=your-model-access-key
+```
+
+#### Inference Routers
+
+Inference Routers cho phép bạn định nghĩa chính sách định tuyến trên nhiều mô hình — chọn mô hình rẻ nhất, nhanh nhất, hoặc phù hợp nhất cho từng yêu cầu dựa trên tác vụ. Sau OAuth, OpenCode hiển thị mỗi router dưới dạng `router:<router-name>` trong bộ chọn mô hình.
+
+Chọn một mô hình router có thể thay thế trực tiếp bất kỳ mô hình nào khác — OpenCode chuyển tiếp yêu cầu của bạn và DigitalOcean chọn mô hình bên dưới dựa trên chính sách của router. Tìm hiểu thêm về [Inference Routers](https://docs.digitalocean.com/products/inference/how-to/use-inference-router/)
+
+---
+
+### FrogBot
+
+1. Truy cập [FrogBot dashboard](https://app.frogbot.ai/signup), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **FrogBot**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key FrogBot của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Fireworks AI
+
+1. Truy cập [Fireworks AI console](https://app.fireworks.ai/), tạo tài khoản, rồi nhấn **Create API Key**.
+
+2. Chạy lệnh `/connect` và tìm **Fireworks AI**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Fireworks AI của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _Kimi K2 Instruct_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### GitLab Duo
+
+:::caution[Experimental]
+Hỗ trợ GitLab Duo trong OpenCode đang ở giai đoạn thử nghiệm. Tính năng, cấu hình, và hành vi có thể thay đổi trong các bản phát hành tương lai.
+:::
+
+OpenCode tích hợp với [GitLab Duo Agent Platform](https://docs.gitlab.com/user/duo_agent_platform/), cung cấp agentic chat dùng AI với khả năng gọi công cụ native.
+
+:::note[License requirements]
+GitLab Duo Agent Platform yêu cầu gói GitLab **Premium** hoặc **Ultimate**. Tính năng này khả dụng trên GitLab.com và GitLab Self-Managed. Xem [GitLab Duo Agent Platform prerequisites](https://docs.gitlab.com/user/duo_agent_platform/#prerequisites) để biết đầy đủ yêu cầu.
+:::
+
+1. Chạy lệnh `/connect` và chọn GitLab.
+
+   ```txt
+   /connect
+   ```
+
+2. Chọn phương thức xác thực:
+
+   ```txt
+   ┌ Select auth method
+   │
+   │ OAuth (Recommended)
+   │ Personal Access Token
+   └
+   ```
+
+   #### Using OAuth (Recommended)
+
+   Chọn **OAuth** và trình duyệt của bạn sẽ mở để cấp quyền.
+
+   #### Using Personal Access Token
+   1. Đi tới [GitLab User Settings > Access Tokens](https://gitlab.com/-/user_settings/personal_access_tokens)
+   2. Nhấn **Add new token**
+   3. Name: `OpenCode`, Scopes: `api`
+   4. Sao chép token (bắt đầu bằng `glpat-`)
+   5. Nhập nó vào terminal
+
+3. Chạy lệnh `/models` để xem các mô hình khả dụng.
+
+   ```txt
+   /models
+   ```
+
+   Có ba mô hình dựa trên Claude khả dụng:
+   - **duo-chat-haiku-4-5** (Default) - Phản hồi nhanh cho tác vụ nhanh
+   - **duo-chat-sonnet-4-5** - Hiệu năng cân bằng cho hầu hết workflow
+   - **duo-chat-opus-4-5** - Mạnh nhất cho phân tích phức tạp
+
+:::note
+Bạn cũng có thể chỉ định biến môi trường 'GITLAB_TOKEN' nếu không muốn lưu token trong auth storage của opencode.
+:::
+
+##### Self-Hosted GitLab
+
+:::note[compliance note]
+OpenCode dùng một mô hình nhỏ cho một số tác vụ AI như tạo tiêu đề phiên. Theo mặc định, nó được cấu hình dùng gpt-5-nano do Zen host. Để khóa OpenCode chỉ dùng instance GitLab-hosted của riêng bạn, hãy thêm phần sau vào tệp `opencode.json`. Bạn cũng nên tắt chia sẻ phiên.
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "small_model": "gitlab/duo-chat-haiku-4-5",
+  "share": "disabled"
+}
+```
+
+:::
+
+Với các instance GitLab tự host:
+
+```bash
+export GITLAB_INSTANCE_URL=https://gitlab.company.com
+export GITLAB_TOKEN=glpat-...
+```
+
+Nếu instance của bạn chạy custom AI Gateway:
+
+```bash
+GITLAB_AI_GATEWAY_URL=https://ai-gateway.company.com
+```
+
+Or add to your bash profile:
+
+```bash title="~/.bash_profile"
+export GITLAB_INSTANCE_URL=https://gitlab.company.com
+export GITLAB_AI_GATEWAY_URL=https://ai-gateway.company.com
+export GITLAB_TOKEN=glpat-...
+```
+
+:::note
+Quản trị viên GitLab của bạn phải:
+
+1. [Turn on GitLab Duo](https://docs.gitlab.com/user/duo_agent_platform/turn_on_off/#turn-gitlab-duo-on-or-off)
+   for the user, group, or instance
+2. [Turn on the Agent Platform](https://docs.gitlab.com/user/duo_agent_platform/turn_on_off/#turn-gitlab-duo-agent-platform-on-or-off)
+   (GitLab 18.8+) or [enable beta and experimental features](https://docs.gitlab.com/user/duo_agent_platform/turn_on_off/#turn-on-beta-and-experimental-features)
+   (GitLab 18.7 and earlier)
+3. Với Self-Managed, [cấu hình instance của bạn](https://docs.gitlab.com/administration/gitlab_duo/configure/gitlab_self_managed/)
+   :::
+
+##### OAuth for Self-Hosted instances
+
+Để OAuth hoạt động cho instance tự host, bạn cần tạo một application mới (Settings → Applications) với callback URL `http://127.0.0.1:8080/callback` và các scopes sau:
+
+- api (Access the API on your behalf)
+- read_user (Read your personal information)
+- read_repository (Allows read-only access to the repository)
+
+Sau đó cung cấp application ID dưới dạng biến môi trường:
+
+```bash
+export GITLAB_OAUTH_CLIENT_ID=your_application_id_here
+```
+
+Xem thêm tài liệu trên trang chủ [opencode-gitlab-auth](https://www.npmjs.com/package/opencode-gitlab-auth).
+
+##### Cấu hình
+
+Tùy chỉnh qua `opencode.json`:
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "gitlab": {
+      "options": {
+        "instanceUrl": "https://gitlab.com"
+      }
+    }
+  }
+}
+```
+
+##### GitLab Duo Agent Platform (DAP) Workflow Models
+
+Các mô hình DAP workflow cung cấp một đường thực thi thay thế, định tuyến tool calls qua Duo Workflow Service (DWS) của GitLab thay vì agentic chat tiêu chuẩn. Khi chọn một mô hình `duo-workflow-*`, OpenCode sẽ:
+
+1. Phát hiện các mô hình khả dụng từ GitLab namespace của bạn
+2. Hiển thị bộ chọn nếu có nhiều mô hình khả dụng
+3. Cache mô hình đã chọn vào ổ đĩa để các lần khởi động sau nhanh hơn
+4. Định tuyến yêu cầu thực thi công cụ qua hệ thống công cụ có kiểm soát quyền của OpenCode
+
+Các mô hình DAP workflow khả dụng tuân theo quy ước đặt tên `duo-workflow-*` và được phát hiện động từ GitLab instance của bạn.
+
+##### GitLab API Tools (Optional, but highly recommended)
+
+Để truy cập công cụ GitLab (merge requests, issues, pipelines, CI/CD, v.v.):
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-gitlab-plugin"]
+}
+```
+
+Plugin này cung cấp đầy đủ khả năng quản lý GitLab repository, bao gồm review MR, theo dõi issue, giám sát pipeline, và hơn thế nữa.
+
+---
+
+### GitHub Copilot
+
+Để dùng gói đăng ký GitHub Copilot của bạn với opencode:
+
+:::note
+Một số mô hình có thể cần [gói Pro+](https://github.com/features/copilot/plans) để sử dụng.
+:::
+
+1. Chạy lệnh `/connect` và tìm GitHub Copilot.
+
+   ```txt
+   /connect
+   ```
+
+2. Truy cập [github.com/login/device](https://github.com/login/device) và nhập mã.
+
+   ```txt
+   ┌ Login with GitHub Copilot
+   │
+   │ https://github.com/login/device
+   │
+   │ Enter code: 8F43-6FCF
+   │
+   └ Waiting for authorization...
+   ```
+
+3. Bây giờ hãy chạy lệnh `/models` để chọn mô hình bạn muốn.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### GMI Cloud
+
+Để dùng GMI Cloud với OpenCode:
+
+1. Truy cập [GMI Cloud console](https://console.gmicloud.ai/) để tạo API key. Bạn cũng có thể xem [API reference](https://docs.gmicloud.ai/inference-engine/api-reference/llm-api-reference) để biết chi tiết endpoint.
+
+2. Chạy lệnh `/connect` và tìm **GMI Cloud**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key GMI Cloud của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn mô hình bạn muốn.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Google Vertex AI
+
+Để dùng Google Vertex AI với OpenCode:
+
+1. Truy cập **Model Garden** in the Google Cloud Console and check the
+   các mô hình khả dụng trong region của bạn.
+
+   :::note
+   You need to have a Google Cloud project with Vertex AI API enabled.
+   :::
+
+2. Đặt các biến môi trường bắt buộc:
+   - `GOOGLE_CLOUD_PROJECT`: Google Cloud project ID của bạn
+   - `VERTEX_LOCATION` (tùy chọn): Region cho Vertex AI (mặc định là `global`)
+   - Xác thực (chọn một):
+     - `GOOGLE_APPLICATION_CREDENTIALS`: Đường dẫn tới tệp JSON key của service account
+     - Xác thực bằng gcloud CLI: `gcloud auth application-default login`
+
+   Đặt chúng khi chạy opencode.
+
+   ```bash
+   GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json GOOGLE_CLOUD_PROJECT=your-project-id opencode
+   ```
+
+   Hoặc thêm chúng vào bash profile của bạn.
+
+   ```bash title="~/.bash_profile"
+   export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+   export GOOGLE_CLOUD_PROJECT=your-project-id
+   export VERTEX_LOCATION=global
+   ```
+
+:::tip
+Region `global` cải thiện độ khả dụng và giảm lỗi mà không tốn thêm chi phí. Dùng regional endpoints (ví dụ `us-central1`) cho các yêu cầu về lưu trú dữ liệu. [Tìm hiểu thêm](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-partner-models#regional_and_global_endpoints)
+:::
+
+3. Chạy lệnh `/models` để chọn mô hình bạn muốn.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Groq
+
+1. Truy cập [Groq console](https://console.groq.com/), nhấn **Create API Key**, rồi sao chép key.
+
+2. Chạy lệnh `/connect` và tìm Groq.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key cho nhà cung cấp.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn mô hình bạn muốn.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Hugging Face
+
+[Hugging Face Inference Providers](https://huggingface.co/docs/inference-providers) cung cấp quyền truy cập vào các mô hình mở được hỗ trợ bởi hơn 17 nhà cung cấp.
+
+1. Truy cập [Hugging Face settings](https://huggingface.co/settings/tokens/new?ownUserPermissions=inference.serverless.write&tokenType=fineGrained) để tạo token có quyền gọi Inference Providers.
+
+2. Chạy lệnh `/connect` và tìm **Hugging Face**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập Hugging Face token của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _Kimi-K2-Instruct_ or _GLM-4.6_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Helicone
+
+[Helicone](https://helicone.ai) là nền tảng observability cho LLM, cung cấp logging, monitoring, và analytics cho ứng dụng AI của bạn. Helicone AI Gateway tự động định tuyến yêu cầu của bạn tới nhà cung cấp phù hợp dựa trên mô hình.
+
+1. Truy cập [Helicone](https://helicone.ai), tạo tài khoản, rồi tạo API key from your dashboard.
+
+2. Chạy lệnh `/connect` và tìm **Helicone**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Helicone của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+Để biết thêm nhà cung cấp và các tính năng nâng cao như caching và rate limiting, hãy xem [tài liệu Helicone](https://docs.helicone.ai).
+
+#### Cấu hình tùy chọn
+
+Nếu bạn thấy một tính năng hoặc mô hình từ Helicone chưa được cấu hình tự động qua opencode, bạn luôn có thể tự cấu hình.
+
+Đây là [Helicone's Model Directory](https://helicone.ai/models); bạn sẽ cần nó để lấy ID của các mô hình muốn thêm.
+
+```jsonc title="~/.config/opencode/opencode.jsonc"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "helicone": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Helicone",
+      "options": {
+        "baseURL": "https://ai-gateway.helicone.ai",
+      },
+      "models": {
+        "gpt-4o": {
+          // Model ID (from Helicone's model directory page)
+          "name": "GPT-4o", // Your own custom name for the model
+        },
+        "claude-sonnet-4-20250514": {
+          "name": "Claude Sonnet 4",
+        },
+      },
+    },
+  },
+}
+```
+
+#### Headers tùy chỉnh
+
+Helicone hỗ trợ headers tùy chỉnh cho các tính năng như caching, theo dõi người dùng, và quản lý phiên. Thêm chúng vào cấu hình nhà cung cấp bằng `options.headers`:
+
+```jsonc title="~/.config/opencode/opencode.jsonc"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "helicone": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Helicone",
+      "options": {
+        "baseURL": "https://ai-gateway.helicone.ai",
+        "headers": {
+          "Helicone-Cache-Enabled": "true",
+          "Helicone-User-Id": "opencode",
+        },
+      },
+    },
+  },
+}
+```
+
+##### Theo dõi phiên
+
+Tính năng [Sessions](https://docs.helicone.ai/features/sessions) của Helicone cho phép bạn nhóm các yêu cầu LLM liên quan lại với nhau. Dùng plugin [opencode-helicone-session](https://github.com/H2Shami/opencode-helicone-session) để tự động ghi log mỗi cuộc trò chuyện OpenCode thành một session trong Helicone.
+
+```bash
+npm install -g opencode-helicone-session
+```
+
+Thêm nó vào cấu hình của bạn.
+
+```json title="opencode.json"
+{
+  "plugin": ["opencode-helicone-session"]
+}
+```
+
+Plugin inject các header `Helicone-Session-Id` và `Helicone-Session-Name` vào yêu cầu của bạn. Trong trang Sessions của Helicone, bạn sẽ thấy mỗi cuộc trò chuyện OpenCode được liệt kê như một session riêng.
+
+##### Headers Helicone thường dùng
+
+| Header                     | Mô tả                                                         |
+| -------------------------- | ------------------------------------------------------------- |
+| `Helicone-Cache-Enabled`   | Bật response caching (`true`/`false`)                         |
+| `Helicone-User-Id`         | Theo dõi metrics theo người dùng                              |
+| `Helicone-Property-[Name]` | Thêm properties tùy chỉnh (ví dụ `Helicone-Property-Environment`) |
+| `Helicone-Prompt-Id`       | Liên kết yêu cầu với các phiên bản prompt                     |
+
+Xem [Helicone Header Directory](https://docs.helicone.ai/helicone-headers/header-directory) để biết tất cả headers khả dụng.
+
+---
+
+### llama.cpp
+
+Bạn có thể cấu hình opencode để dùng mô hình cục bộ thông qua tiện ích llama-server của [llama.cpp](https://github.com/ggml-org/llama.cpp)
+
+```json title="opencode.json" "llama.cpp" {5, 6, 8, 10-15}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "llama.cpp": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "llama-server (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:8080/v1"
+      },
+      "models": {
+        "qwen3-coder:a3b": {
+          "name": "Qwen3-Coder: a3b-30b (local)",
+          "limit": {
+            "context": 128000,
+            "output": 65536
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Trong ví dụ này:
+
+- `llama.cpp` là custom provider ID. Đây có thể là bất kỳ chuỗi nào bạn muốn.
+- `npm` chỉ định package dùng cho nhà cung cấp này. Ở đây, `@ai-sdk/openai-compatible` được dùng cho mọi API tương thích OpenAI.
+- `name` là tên hiển thị của nhà cung cấp trong UI.
+- `options.baseURL` là endpoint cho máy chủ cục bộ.
+- `models` là map từ model IDs tới cấu hình của chúng. Tên mô hình sẽ hiển thị trong danh sách chọn mô hình.
+
+---
+
+### IO.NET
+
+IO.NET offers 17 models optimized for various use cases:
+
+1. Truy cập [IO.NET console](https://ai.io.net/), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **IO.NET**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key IO.NET của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### LM Studio
+
+Bạn có thể cấu hình opencode để dùng mô hình cục bộ thông qua LM Studio.
+
+```json title="opencode.json" "lmstudio" {5, 6, 8, 10-14}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "lmstudio": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LM Studio (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:1234/v1"
+      },
+      "models": {
+        "google/gemma-3n-e4b": {
+          "name": "Gemma 3n-e4b (local)"
+        }
+      }
+    }
+  }
+}
+```
+
+Trong ví dụ này:
+
+- `lmstudio` là custom provider ID. Đây có thể là bất kỳ chuỗi nào bạn muốn.
+- `npm` chỉ định package dùng cho nhà cung cấp này. Ở đây, `@ai-sdk/openai-compatible` được dùng cho mọi API tương thích OpenAI.
+- `name` là tên hiển thị của nhà cung cấp trong UI.
+- `options.baseURL` là endpoint cho máy chủ cục bộ.
+- `models` là map từ model IDs tới cấu hình của chúng. Tên mô hình sẽ hiển thị trong danh sách chọn mô hình.
+
+---
+
+### Moonshot AI
+
+Để dùng Kimi K2 từ Moonshot AI:
+
+1. Truy cập [Moonshot AI console](https://platform.moonshot.ai/console), tạo tài khoản, rồi nhấn **Create API key**.
+
+2. Chạy lệnh `/connect` và tìm **Moonshot AI**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Moonshot của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn _Kimi K2_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### MiniMax
+
+1. Truy cập [MiniMax API Console](https://platform.minimax.io/login), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **MiniMax**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key MiniMax của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _M2.1_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### NVIDIA
+
+NVIDIA cung cấp quyền truy cập miễn phí vào các mô hình Nemotron và nhiều mô hình mở khác thông qua [build.nvidia.com](https://build.nvidia.com).
+
+1. Truy cập [build.nvidia.com](https://build.nvidia.com), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **NVIDIA**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key NVIDIA của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như nemotron-3-super-120b-a12b.
+
+   ```txt
+   /models
+   ```
+
+#### On-Prem / NIM
+
+Bạn cũng có thể dùng mô hình NVIDIA cục bộ qua [NVIDIA NIM](https://docs.nvidia.com/nim/) bằng cách đặt custom base URL.
+
+```json title="opencode.json" {6}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "nvidia": {
+      "options": {
+        "baseURL": "http://localhost:8000/v1"
+      }
+    }
+  }
+}
+```
+
+#### Biến môi trường
+
+Ngoài ra, hãy đặt API key của bạn làm biến môi trường.
+
+```bash frame="none"
+export NVIDIA_API_KEY=nvapi-your-key-here
+```
+
+---
+
+### Nebius Token Factory
+
+1. Truy cập [Nebius Token Factory console](https://tokenfactory.nebius.com/), tạo tài khoản, rồi nhấn **Add Key**.
+
+2. Chạy lệnh `/connect` và tìm **Nebius Token Factory**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Nebius Token Factory của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _Kimi K2 Instruct_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Ollama
+
+Bạn có thể cấu hình opencode để dùng mô hình cục bộ thông qua Ollama.
+
+:::tip
+Ollama có thể tự động cấu hình cho OpenCode. Xem [Ollama integration docs](https://docs.ollama.com/integrations/opencode) để biết chi tiết.
+:::
+
+```json title="opencode.json" "ollama" {5, 6, 8, 10-14}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (local)",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "llama2": {
+          "name": "Llama 2"
+        }
+      }
+    }
+  }
+}
+```
+
+Trong ví dụ này:
+
+- `ollama` là custom provider ID. Đây có thể là bất kỳ chuỗi nào bạn muốn.
+- `npm` chỉ định package dùng cho nhà cung cấp này. Ở đây, `@ai-sdk/openai-compatible` được dùng cho mọi API tương thích OpenAI.
+- `name` là tên hiển thị của nhà cung cấp trong UI.
+- `options.baseURL` là endpoint cho máy chủ cục bộ.
+- `models` là map từ model IDs tới cấu hình của chúng. Tên mô hình sẽ hiển thị trong danh sách chọn mô hình.
+
+:::tip
+Nếu tool calls không hoạt động, hãy thử tăng `num_ctx` trong Ollama. Bắt đầu khoảng 16k - 32k.
+:::
+
+---
+
+### Ollama Cloud
+
+Để dùng Ollama Cloud với OpenCode:
+
+1. Truy cập [https://ollama.com/](https://ollama.com/) và đăng nhập hoặc tạo tài khoản.
+
+2. Đi tới **Settings** > **Keys** và nhấn **Add API Key** để tạo API key mới.
+
+3. Sao chép API key để dùng trong OpenCode.
+
+4. Chạy lệnh `/connect` và tìm **Ollama Cloud**.
+
+   ```txt
+   /connect
+   ```
+
+5. Nhập API key Ollama Cloud của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+6. **Quan trọng**: Trước khi dùng mô hình cloud trong OpenCode, bạn phải pull thông tin mô hình về cục bộ:
+
+   ```bash
+   ollama pull gpt-oss:20b-cloud
+   ```
+
+7. Chạy lệnh `/models` để chọn mô hình Ollama Cloud của bạn.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### OpenAI
+
+Chúng tôi khuyên bạn nên đăng ký [ChatGPT Plus or Pro](https://chatgpt.com/pricing).
+
+1. Sau khi đăng ký, chạy lệnh `/connect` và chọn OpenAI.
+
+   ```txt
+   /connect
+   ```
+
+2. Tại đây bạn có thể chọn tùy chọn **ChatGPT Plus/Pro**; trình duyệt sẽ mở ra và yêu cầu bạn xác thực.
+
+   ```txt
+   ┌ Select auth method
+   │
+   │ ChatGPT Plus/Pro
+   │ Manually enter API Key
+   └
+   ```
+
+3. Bây giờ mọi mô hình OpenAI sẽ khả dụng khi bạn dùng lệnh `/models`.
+
+   ```txt
+   /models
+   ```
+
+##### Dùng API keys
+
+Nếu đã có API key, bạn có thể chọn **Manually enter API Key** và dán nó vào terminal.
+
+---
+
+### OpenCode Zen
+
+OpenCode Zen là danh sách các mô hình đã được kiểm thử và xác minh do đội ngũ OpenCode cung cấp. [Tìm hiểu thêm](/docs/zen).
+
+1. Đăng nhập vào **<a href={console}>OpenCode Zen</a>** và nhấn **Create API Key**.
+
+2. Chạy lệnh `/connect` và tìm **OpenCode Zen**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key OpenCode của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _Qwen 3 Coder 480B_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### OpenRouter
+
+1. Truy cập [OpenRouter dashboard](https://openrouter.ai/settings/keys), nhấn **Create API Key**, rồi sao chép key.
+
+2. Chạy lệnh `/connect` và tìm OpenRouter.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key cho nhà cung cấp.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Nhiều mô hình OpenRouter được tải sẵn theo mặc định; chạy lệnh `/models` để chọn mô hình bạn muốn.
+
+   ```txt
+   /models
+   ```
+
+   Bạn cũng có thể thêm mô hình bổ sung thông qua cấu hình opencode.
+
+   ```json title="opencode.json" {6}
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "provider": {
+       "openrouter": {
+         "models": {
+           "somecoolnewmodel": {}
+         }
+       }
+     }
+   }
+   ```
+
+5. Bạn cũng có thể tùy chỉnh chúng thông qua cấu hình opencode. Đây là ví dụ chỉ định một nhà cung cấp
+
+   ```json title="opencode.json"
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "provider": {
+       "openrouter": {
+         "models": {
+           "moonshotai/kimi-k2": {
+             "options": {
+               "provider": {
+                 "order": ["baseten"],
+                 "allow_fallbacks": false
+               }
+             }
+           }
+         }
+       }
+     }
+   }
+   ```
+
+---
+
+### LLM Gateway
+
+1. Truy cập [LLM Gateway dashboard](https://llmgateway.io/dashboard), nhấn **Create API Key**, rồi sao chép key.
+
+2. Chạy lệnh `/connect` và tìm LLM Gateway.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key cho nhà cung cấp.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Nhiều mô hình LLM Gateway được tải sẵn theo mặc định; chạy lệnh `/models` để chọn mô hình bạn muốn.
+
+   ```txt
+   /models
+   ```
+
+   Bạn cũng có thể thêm mô hình bổ sung thông qua cấu hình opencode.
+
+   ```json title="opencode.json" {6}
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "provider": {
+       "llmgateway": {
+         "models": {
+           "somecoolnewmodel": {}
+         }
+       }
+     }
+   }
+   ```
+
+5. Bạn cũng có thể tùy chỉnh chúng thông qua cấu hình opencode. Đây là ví dụ chỉ định một nhà cung cấp
+
+   ```json title="opencode.json"
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "provider": {
+       "llmgateway": {
+         "models": {
+           "glm-4.7": {
+             "name": "GLM 4.7"
+           },
+           "gpt-5.2": {
+             "name": "GPT-5.2"
+           },
+           "gemini-2.5-pro": {
+             "name": "Gemini 2.5 Pro"
+           },
+           "claude-3-5-sonnet-20241022": {
+             "name": "Claude 3.5 Sonnet"
+           }
+         }
+       }
+     }
+   }
+   ```
+
+---
+
+### SAP AI Core
+
+SAP AI Core cung cấp quyền truy cập vào hơn 40 mô hình từ OpenAI, Anthropic, Google, Amazon, Meta, Mistral, và AI21 thông qua một nền tảng hợp nhất.
+
+1. Đi tới [SAP BTP Cockpit](https://account.hana.ondemand.com/), điều hướng tới SAP AI Core service instance của bạn, rồi tạo service key.
+
+   :::tip
+   Service key là một đối tượng JSON chứa `clientid`, `clientsecret`, `url`, và `serviceurls.AI_API_URL`. Bạn có thể tìm AI Core instance trong **Services** > **Instances and Subscriptions** ở BTP Cockpit.
+   :::
+
+2. Chạy lệnh `/connect` và tìm **SAP AI Core**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập JSON service key của bạn.
+
+   ```txt
+   ┌ Service key
+   │
+   │
+   └ enter
+   ```
+
+   Or set the `AICORE_SERVICE_KEY` environment variable:
+
+   ```bash
+   AICORE_SERVICE_KEY='{"clientid":"...","clientsecret":"...","url":"...","serviceurls":{"AI_API_URL":"..."}}' opencode
+   ```
+
+   Hoặc thêm nó vào bash profile của bạn:
+
+   ```bash title="~/.bash_profile"
+   export AICORE_SERVICE_KEY='{"clientid":"...","clientsecret":"...","url":"...","serviceurls":{"AI_API_URL":"..."}}'
+   ```
+
+4. Tùy chọn đặt deployment ID và resource group:
+
+   ```bash
+   AICORE_DEPLOYMENT_ID=your-deployment-id AICORE_RESOURCE_GROUP=your-resource-group opencode
+   ```
+
+   :::note
+   Các thiết lập này là tùy chọn và nên được cấu hình theo thiết lập SAP AI Core của bạn.
+   :::
+
+5. Chạy lệnh `/models` để chọn từ hơn 40 mô hình khả dụng.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### STACKIT
+
+STACKIT AI Model Serving cung cấp môi trường hosting sovereign được quản lý đầy đủ cho các mô hình AI, tập trung vào LLM như Llama, Mistral, và Qwen, với chủ quyền dữ liệu tối đa trên hạ tầng châu Âu.
+
+1. Truy cập [STACKIT Portal](https://portal.stackit.cloud), đi tới **AI Model Serving**, rồi tạo auth token cho dự án của bạn.
+
+   :::tip
+   Bạn cần có tài khoản khách hàng STACKIT, tài khoản người dùng, và dự án trước khi tạo auth tokens.
+   :::
+
+2. Chạy lệnh `/connect` và tìm **STACKIT**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập auth token STACKIT AI Model Serving của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn từ các mô hình khả dụng như _Qwen3-VL 235B_ hoặc _Llama 3.3 70B_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### OVHcloud AI Endpoints
+
+1. Truy cập [OVHcloud panel](https://ovh.com/manager). Đi tới phần `Public Cloud`, `AI & Machine Learning` > `AI Endpoints`, rồi trong tab `API Keys`, nhấn **Create a new API key**.
+
+2. Chạy lệnh `/connect` và tìm **OVHcloud AI Endpoints**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key OVHcloud AI Endpoints của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _gpt-oss-120b_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Scaleway
+
+Để dùng [Scaleway Generative APIs](https://www.scaleway.com/en/docs/generative-apis/) với Opencode:
+
+1. Truy cập [Scaleway Console IAM settings](https://console.scaleway.com/iam/api-keys) để tạo API key mới.
+
+2. Chạy lệnh `/connect` và tìm **Scaleway**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Scaleway của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _devstral-2-123b-instruct-2512_ or _gpt-oss-120b_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Snowflake Cortex
+
+[Snowflake Cortex](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-rest-api) cho bạn quyền truy cập frontier models (Claude, OpenAI GPT-5, và hơn thế nữa) qua API tương thích OpenAI. Toàn bộ inference chạy trong phạm vi Snowflake và được tính bằng Snowflake credits. Để xem mức phí theo từng mô hình, xem [Snowflake Service Consumption Table](https://www.snowflake.com/legal-files/CreditConsumptionTable.pdf).
+
+Chưa có tài khoản Snowflake? [Đăng ký dùng thử miễn phí](https://signup.snowflake.com/?utm_source=opencode&utm_medium=docs&utm_campaign=cortex-provider).
+
+Workflow cốt lõi của opencode cho viết mã, sửa tệp, và chạy lệnh phụ thuộc vào tool calling. Chỉ các họ Claude và OpenAI trong Snowflake Cortex hỗ trợ điều này. Nhà cung cấp này được giới hạn ở các họ đó để hỗ trợ workflow cốt lõi.
+
+OpenCode hỗ trợ hai phương thức xác thực:
+
+- **Browser OAuth (Recommended)** — đăng nhập bằng IdP/SSO của bạn; không cần quản lý secret, token tự động refresh.
+- **Manual bearer token** — dán PAT hoặc JWT từ Snowflake console.
+
+#### Browser OAuth (Recommended)
+
+1. Chạy lệnh `/connect` và tìm **Snowflake Cortex**.
+
+   ```txt
+   /connect
+   ```
+
+2. Chọn **Login with Snowflake (External Browser)**.
+
+   ```txt
+   ┌ Select auth method
+   │
+   │ Login with Snowflake (External Browser)
+   │ Paste PAT or bearer token manually
+   └
+   ```
+
+3. Nhập [account identifier](https://docs.snowflake.com/en/user-guide/admin-account-identifier) khi được nhắc, ví dụ `myorg-myaccount` hoặc `xy12345.us-east-1`.
+
+   ```txt
+   ┌ Snowflake Account Identifier
+   │
+   │
+   └ enter
+   ```
+
+4. Tùy chọn nhập Snowflake role để giới hạn phạm vi phiên (ví dụ `SYSADMIN`). Để trống để dùng role mặc định.
+
+5. Hoàn tất đăng nhập trong trình duyệt mở ra. OpenCode tự động bắt OAuth callback và lưu token — không cần copy/paste.
+
+6. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+:::note
+Browser OAuth dùng security integration tích hợp sẵn `SNOWFLAKE$LOCAL_APPLICATION` của Snowflake ([docs](https://docs.snowflake.com/en/user-guide/oauth-local-applications)), đang được triển khai tới mọi tài khoản. Để kiểm tra khả dụng trong tài khoản của bạn:
+
+```sql
+SHOW SECURITY INTEGRATIONS LIKE 'SNOWFLAKE$LOCAL_APPLICATION';
+```
+
+Nếu kết quả trống, hãy dùng phương thức **Manual bearer token** bên dưới trong khi integration được triển khai tới tài khoản của bạn.
+:::
+
+#### Manual bearer token
+
+Nếu bạn muốn dán token trực tiếp, hoặc nếu `SNOWFLAKE$LOCAL_APPLICATION` chưa khả dụng trong tài khoản của bạn:
+
+1. Tạo [Programmatic Access Token (PAT)](https://docs.snowflake.com/en/user-guide/programmatic-access-tokens) trong tài khoản Snowflake của bạn.
+
+2. Chạy lệnh `/connect`, tìm **Snowflake Cortex**, rồi chọn **Paste PAT or bearer token manually**.
+
+3. Nhập [account identifier](https://docs.snowflake.com/en/user-guide/admin-account-identifier) khi được nhắc.
+
+4. Dán PAT của bạn.
+
+5. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+#### Biến môi trường
+
+Với môi trường CI hoặc headless, đặt PAT hoặc JWT trước khi khởi động opencode:
+
+```bash
+export SNOWFLAKE_ACCOUNT=myorg-myaccount
+export SNOWFLAKE_CORTEX_TOKEN=your-pat-or-jwt
+```
+
+:::note
+`SNOWFLAKE_CORTEX_TOKEN` chỉ chấp nhận PAT hoặc JWT — luồng browser OAuth chỉ khả dụng qua `/connect` và không thể cấu hình bằng biến môi trường. `SNOWFLAKE_CORTEX_PAT` vẫn được hỗ trợ để tương thích ngược.
+:::
+
+Model catalog được cung cấp tự động. Chỉ cần một `opencode.json` tối thiểu:
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "snowflake-cortex/claude-sonnet-4-6",
+  "small_model": "snowflake-cortex/claude-haiku-4-5"
+}
+```
+
+---
+
+### Together AI
+
+1. Truy cập [Together AI console](https://api.together.ai), tạo tài khoản, rồi nhấn **Add Key**.
+
+2. Chạy lệnh `/connect` và tìm **Together AI**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Together AI của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _Kimi K2 Instruct_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Venice AI
+
+1. Truy cập [Venice AI console](https://venice.ai), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **Venice AI**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Venice AI của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _Llama 3.3 70B_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Vercel AI Gateway
+
+Vercel AI Gateway cho phép bạn truy cập các mô hình từ OpenAI, Anthropic, Google, xAI, và nhiều nhà cung cấp khác thông qua một endpoint hợp nhất. Mô hình được cung cấp theo giá niêm yết, không markup.
+
+1. Truy cập [Vercel dashboard](https://vercel.com/), đi tới tab **AI Gateway**, rồi nhấn **API keys** để tạo API key mới.
+
+2. Chạy lệnh `/connect` và tìm **Vercel AI Gateway**.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key Vercel AI Gateway của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn mô hình.
+
+   ```txt
+   /models
+   ```
+
+Bạn cũng có thể tùy chỉnh mô hình thông qua cấu hình opencode. Đây là ví dụ chỉ định thứ tự định tuyến nhà cung cấp.
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "vercel": {
+      "models": {
+        "anthropic/claude-sonnet-4": {
+          "options": {
+            "order": ["anthropic", "vertex"]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Một số tùy chọn định tuyến hữu ích:
+
+| Tùy chọn            | Mô tả                                                |
+| ------------------- | ---------------------------------------------------- |
+| `order`             | Thứ tự nhà cung cấp để thử                           |
+| `only`              | Giới hạn vào các nhà cung cấp cụ thể                 |
+| `zeroDataRetention` | Chỉ dùng nhà cung cấp có chính sách zero data retention |
+
+---
+
+### xAI
+
+Có ba cách xác thực: gói đăng ký SuperGrok qua browser OAuth, cùng gói SuperGrok đó qua luồng device-code headless (cho VPS / SSH / Docker), hoặc API key trả theo mức dùng từ xAI console.
+
+#### Tùy chọn A — SuperGrok OAuth (đăng nhập trình duyệt)
+
+1. Chạy lệnh `/connect` và tìm **xAI**.
+
+   ```txt
+   /connect
+   ```
+
+2. Chọn **xAI Grok OAuth (SuperGrok Subscription)**. OpenCode mở màn hình consent của xAI trong trình duyệt và chờ callback tại `http://127.0.0.1:56121/callback`.
+
+3. Chạy lệnh `/models` để chọn mô hình Grok.
+
+   ```txt
+   /models
+   ```
+
+OpenCode tự động refresh OAuth access token. Bất kỳ gói Grok hoặc X Premium nào bao gồm quyền truy cập Grok API đều dùng được; bạn không cần `XAI_API_KEY` riêng.
+
+#### Tùy chọn B — SuperGrok device-code (headless / remote server / VPS)
+
+Dùng cách này khi OpenCode đang chạy ở nơi trình duyệt không thể truy cập loopback redirect: VPS, máy dev từ xa qua SSH, trong Docker, trong CI, v.v. Không có cổng callback nào được mở trên host chạy OpenCode — thay vào đó xAI đưa cho CLI một mã ngắn để bạn nhập vào trình duyệt trên thiết bị khác (laptop, điện thoại, …).
+
+1. Chạy lệnh `/connect` trên host từ xa và tìm **xAI**.
+
+   ```txt
+   /connect
+   ```
+
+2. Chọn **xAI Grok OAuth (Headless / Remote / VPS)**. OpenCode in ra verification URL và user code ngắn.
+
+   ```txt
+   Open https://x.ai/device on any device and enter code: ABCD-1234
+   ```
+
+3. Mở URL trên thiết bị có trình duyệt (laptop hoặc điện thoại), nhập mã, rồi phê duyệt màn hình consent. OpenCode poll token endpoint của xAI và lưu OAuth tokens sau khi bạn phê duyệt. Token refresh hoạt động giống Tùy chọn A.
+
+#### Tùy chọn C — API key
+
+1. Truy cập [xAI console](https://console.x.ai/), tạo tài khoản, rồi tạo API key.
+
+2. Chạy lệnh `/connect` và tìm **xAI**.
+
+   ```txt
+   /connect
+   ```
+
+3. Chọn **Manually enter API Key** và dán API key xAI của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _Grok Beta_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### Z.AI
+
+1. Truy cập [Z.AI API console](https://z.ai/manage-apikey/apikey-list), tạo tài khoản, rồi nhấn **Create a new API key**.
+
+2. Chạy lệnh `/connect` và tìm **Z.AI**.
+
+   ```txt
+   /connect
+   ```
+
+   Nếu bạn đã đăng ký **GLM Coding Plan**, hãy chọn **Z.AI Coding Plan**.
+
+3. Nhập API key Z.AI của bạn.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Chạy lệnh `/models` để chọn một mô hình như _GLM-4.7_.
+
+   ```txt
+   /models
+   ```
+
+---
+
+### ZenMux
+
+1. Truy cập [ZenMux dashboard](https://zenmux.ai/settings/keys), nhấn **Create API Key**, rồi sao chép key.
+
+2. Chạy lệnh `/connect` và tìm ZenMux.
+
+   ```txt
+   /connect
+   ```
+
+3. Nhập API key cho nhà cung cấp.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Nhiều mô hình ZenMux được tải sẵn theo mặc định; chạy lệnh `/models` để chọn mô hình bạn muốn.
+
+   ```txt
+   /models
+   ```
+
+   Bạn cũng có thể thêm mô hình bổ sung thông qua cấu hình opencode.
+
+   ```json title="opencode.json" {6}
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "provider": {
+       "zenmux": {
+         "models": {
+           "somecoolnewmodel": {}
+         }
+       }
+     }
+   }
+   ```
+
+---
+
+## Nhà cung cấp tùy chỉnh
+
+Để thêm bất kỳ nhà cung cấp **tương thích OpenAI** nào không có trong lệnh `/connect`:
+
+:::tip
+Bạn có thể dùng bất kỳ nhà cung cấp tương thích OpenAI nào với opencode. Hầu hết nhà cung cấp AI hiện đại đều cung cấp API tương thích OpenAI.
+:::
+
+1. Chạy lệnh `/connect` và cuộn xuống **Other**.
+
+   ```bash
+   $ /connect
+
+   ┌  Add credential
+   │
+   ◆  Select provider
+   │  ...
+   │  ● Other
+   └
+   ```
+
+2. Nhập một ID duy nhất cho nhà cung cấp.
+
+   ```bash
+   $ /connect
+
+   ┌  Add credential
+   │
+   ◇  Enter provider id
+   │  myprovider
+   └
+   ```
+
+   :::note
+   Chọn một ID dễ nhớ; bạn sẽ dùng nó trong tệp cấu hình.
+   :::
+
+3. Nhập API key của bạn cho nhà cung cấp.
+
+   ```bash
+   $ /connect
+
+   ┌  Add credential
+   │
+   ▲  This only stores a credential for myprovider - you will need to configure it in opencode.json, check the docs for examples.
+   │
+   ◇  Enter your API key
+   │  sk-...
+   └
+   ```
+
+4. Tạo hoặc cập nhật tệp `opencode.json` trong thư mục dự án:
+
+   ```json title="opencode.json" ""myprovider"" {5-15}
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "provider": {
+       "myprovider": {
+         "npm": "@ai-sdk/openai-compatible",
+         "name": "My AI ProviderDisplay Name",
+         "options": {
+           "baseURL": "https://api.myprovider.com/v1"
+         },
+         "models": {
+           "my-model-name": {
+             "name": "My Model Display Name"
+           }
+         }
+       }
+     }
+   }
+   ```
+
+   Các tùy chọn cấu hình gồm:
+   - **npm**: Package AI SDK cần dùng, `@ai-sdk/openai-compatible` cho nhà cung cấp tương thích OpenAI (cho `/v1/chat/completions`). Nếu nhà cung cấp/mô hình của bạn dùng `/v1/responses`, hãy dùng `@ai-sdk/openai`.
+   - **name**: Tên hiển thị trong UI.
+   - **models**: Các mô hình khả dụng.
+   - **options.baseURL**: URL API endpoint.
+   - **options.apiKey**: Tùy chọn đặt API key, nếu không dùng auth.
+   - **options.headers**: Tùy chọn đặt headers tùy chỉnh.
+
+   Xem thêm về các tùy chọn nâng cao trong ví dụ bên dưới.
+
+5. Chạy lệnh `/models`; nhà cung cấp và mô hình tùy chỉnh của bạn sẽ xuất hiện trong danh sách chọn.
+
+---
+
+##### Ví dụ
+
+Dưới đây là ví dụ đặt các tùy chọn `apiKey`, `headers`, và `limit` của mô hình.
+
+```json title="opencode.json" {9,11,17-20}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "myprovider": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "My AI ProviderDisplay Name",
+      "options": {
+        "baseURL": "https://api.myprovider.com/v1",
+        "apiKey": "{env:ANTHROPIC_API_KEY}",
+        "headers": {
+          "Authorization": "Bearer custom-token"
+        }
+      },
+      "models": {
+        "my-model-name": {
+          "name": "My Model Display Name",
+          "limit": {
+            "context": 200000,
+            "output": 65536
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Chi tiết cấu hình:
+
+- **apiKey**: Đặt bằng cú pháp biến `env`, [tìm hiểu thêm](/docs/config#env-vars).
+- **headers**: Headers tùy chỉnh được gửi với mỗi yêu cầu.
+- **limit.context**: Số input tokens tối đa mà mô hình chấp nhận.
+- **limit.output**: Số tokens tối đa mà mô hình có thể tạo.
+
+Các trường `limit` cho phép OpenCode biết bạn còn bao nhiêu ngữ cảnh. Nhà cung cấp tiêu chuẩn tự động lấy các giá trị này từ models.dev.
+
+---
+
+## Khắc phục sự cố
+
+Nếu bạn gặp khó khăn khi cấu hình nhà cung cấp, hãy kiểm tra các mục sau:
+
+1. **Kiểm tra thiết lập auth**: Chạy `opencode auth list` để xem thông tin xác thực cho nhà cung cấp đã được thêm vào cấu hình của bạn chưa.
+
+   Điều này không áp dụng cho các nhà cung cấp như Amazon Bedrock, vốn dựa vào biến môi trường để xác thực.
+
+2. Với nhà cung cấp tùy chỉnh, kiểm tra cấu hình opencode và:
+   - Đảm bảo provider ID dùng trong lệnh `/connect` khớp với ID trong cấu hình opencode.
+   - Dùng đúng npm package cho nhà cung cấp. Ví dụ, dùng `@ai-sdk/cerebras` cho Cerebras. Với tất cả nhà cung cấp tương thích OpenAI khác, dùng `@ai-sdk/openai-compatible` (cho `/v1/chat/completions`); nếu một mô hình dùng `/v1/responses`, dùng `@ai-sdk/openai`. Với thiết lập pha trộn trong cùng một nhà cung cấp, bạn có thể ghi đè theo từng mô hình qua `provider.npm`.
+   - Kiểm tra API endpoint đúng được dùng trong trường `options.baseURL`.

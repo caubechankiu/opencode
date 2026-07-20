@@ -1,0 +1,83 @@
+---
+title: Hệ sinh thái
+description: Các dự án và tích hợp được xây dựng với OpenCode.
+---
+
+Bộ sưu tập các dự án cộng đồng được xây dựng trên OpenCode.
+
+:::note
+Muốn thêm dự án liên quan đến OpenCode của bạn vào danh sách này? Hãy gửi PR.
+:::
+
+Bạn cũng có thể xem [awesome-opencode](https://github.com/awesome-opencode/awesome-opencode) và [opencode.cafe](https://opencode.cafe), một cộng đồng tổng hợp hệ sinh thái và cộng đồng.
+
+---
+
+## Plugins
+
+| Tên                                                                                                | Mô tả                                                                                                    |
+| -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| [opencode-daytona](https://github.com/daytonaio/daytona/tree/main/libs/opencode-plugin)            | Tự động chạy các session OpenCode trong sandbox Daytona cô lập, có đồng bộ git và live preview          |
+| [opencode-helicone-session](https://github.com/H2Shami/opencode-helicone-session)                  | Tự động chèn Helicone session headers để nhóm request                                                    |
+| [opencode-type-inject](https://github.com/nick-vi/opencode-type-inject)                            | Tự động chèn type TypeScript/Svelte vào các lần đọc tệp với công cụ tra cứu                              |
+| [opencode-openai-codex-auth](https://github.com/numman-ali/opencode-openai-codex-auth)             | Dùng gói ChatGPT Plus/Pro của bạn thay vì API credits                                                    |
+| [opencode-gemini-auth](https://github.com/jenslys/opencode-gemini-auth)                            | Dùng gói Gemini hiện có của bạn thay vì tính phí API                                                     |
+| [opencode-antigravity-auth](https://github.com/NoeFabris/opencode-antigravity-auth)                | Dùng các model miễn phí của Antigravity thay vì tính phí API                                             |
+| [opencode-devcontainers](https://github.com/athal7/opencode-devcontainers)                         | Cô lập devcontainer đa nhánh với shallow clone và port tự gán                                            |
+| [opencode-google-antigravity-auth](https://github.com/shekohex/opencode-google-antigravity-auth)   | Google Antigravity OAuth Plugin, hỗ trợ Google Search và xử lý API vững hơn                              |
+| [opencode-dynamic-context-pruning](https://github.com/Tarquinen/opencode-dynamic-context-pruning)  | Tối ưu token usage bằng cách lược bỏ output công cụ đã lỗi thời                                          |
+| [opencode-vibeguard](https://github.com/inkdust2021/opencode-vibeguard)                            | Biên tập secrets/PII thành placeholder kiểu VibeGuard trước khi gọi LLM; khôi phục cục bộ                |
+| [opencode-websearch-cited](https://github.com/ghoulr/opencode-websearch-cited.git)                 | Thêm hỗ trợ websearch gốc cho các provider được hỗ trợ với kiểu Google grounded                          |
+| [opencode-pty](https://github.com/shekohex/opencode-pty.git)                                       | Cho phép AI agents chạy background process trong PTY và gửi input tương tác cho chúng.                   |
+| [opencode-shell-strategy](https://github.com/JRedeker/opencode-shell-strategy)                     | Chỉ dẫn cho lệnh shell không tương tác - tránh treo do thao tác phụ thuộc TTY                            |
+| [opencode-wakatime](https://github.com/angristan/opencode-wakatime)                                | Theo dõi usage OpenCode bằng Wakatime                                                                    |
+| [opencode-md-table-formatter](https://github.com/franlol/opencode-md-table-formatter/tree/main)    | Dọn dẹp các bảng markdown do LLM tạo                                                                     |
+| [opencode-morph-fast-apply](https://github.com/JRedeker/opencode-morph-fast-apply)                 | Chỉnh sửa code nhanh hơn 10x với Morph Fast Apply API và lazy edit markers                               |
+| [opencode-morph-plugin](https://github.com/morphllm/opencode-morph-plugin)                         | Fast Apply editing, WarpGrep codebase search, và context compaction qua Morph                            |
+| [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode)                                   | Background agents, công cụ LSP/AST/MCP dựng sẵn, agent tuyển chọn, tương thích Claude Code               |
+| [opencode-notificator](https://github.com/panta82/opencode-notificator)                            | Thông báo desktop và âm báo cho các session OpenCode                                                     |
+| [opencode-notifier](https://github.com/mohak34/opencode-notifier)                                  | Thông báo desktop và âm báo cho sự kiện quyền, hoàn tất, và lỗi                                          |
+| [opencode-zellij-namer](https://github.com/24601/opencode-zellij-namer)                            | Đặt tên Zellij session tự động bằng AI dựa trên context OpenCode                                         |
+| [opencode-skillful](https://github.com/zenobi-us/opencode-skillful)                                | Cho phép OpenCode agents lazy load prompt theo nhu cầu với skill discovery và injection                  |
+| [opencode-supermemory](https://github.com/supermemoryai/opencode-supermemory)                      | Bộ nhớ bền vững qua các session bằng Supermemory                                                         |
+| [@plannotator/opencode](https://github.com/backnotprop/plannotator/tree/main/apps/opencode-plugin) | Duyệt kế hoạch tương tác với chú thích trực quan và chia sẻ riêng tư/offline                             |
+| [@openspoon/subtask2](https://github.com/spoons-and-mirrors/subtask2)                              | Mở rộng /commands của opencode thành hệ thống orchestration mạnh với kiểm soát luồng chi tiết            |
+| [opencode-scheduler](https://github.com/different-ai/opencode-scheduler)                           | Lên lịch job định kỳ bằng launchd (Mac) hoặc systemd (Linux) với cú pháp cron                            |
+| [opencode-conductor](https://github.com/derekbar90/opencode-conductor)                             | Protocol-Driven Workflow: Tự động hóa vòng đời Context -> Spec -> Plan -> Implement.                     |
+| [micode](https://github.com/vtemian/micode)                                                        | Quy trình Brainstorm → Plan → Implement có cấu trúc với tính liên tục session                            |
+| [octto](https://github.com/vtemian/octto)                                                          | UI trình duyệt tương tác cho AI brainstorming với form nhiều câu hỏi                                     |
+| [opencode-background-agents](https://github.com/kdcokenny/opencode-background-agents)              | Background agents kiểu Claude Code với ủy quyền async và context persistence                             |
+| [opencode-notify](https://github.com/kdcokenny/opencode-notify)                                    | Thông báo OS gốc cho OpenCode – biết khi task hoàn tất                                                   |
+| [opencode-workspace](https://github.com/kdcokenny/opencode-workspace)                              | Bộ harness orchestration đa agent đóng gói – 16 thành phần, một lần cài                                  |
+| [opencode-worktree](https://github.com/kdcokenny/opencode-worktree)                                | Git worktrees không ma sát cho OpenCode                                                                  |
+| [opencode-sentry-monitor](https://github.com/stolinski/opencode-sentry-monitor)                    | Truy vết và debug AI agents của bạn bằng Sentry AI Monitoring                                            |
+| [opencode-firecrawl](https://github.com/firecrawl/opencode-firecrawl)                              | Web scraping, crawling, và search qua Firecrawl CLI                                                      |
+| [opencode-jfrog-plugin](https://github.com/jfrog/opencode-jfrog-plugin)                            | JFrog Plugin để tích hợp liền mạch người dùng Opencode vào nền tảng JFrog                                |
+| [opencode-goal-plugin](https://github.com/willytop8/OpenCode-goal-plugin)                          | Workflow `/goal` theo phạm vi session giữ objective trong context và tự tiếp tục đến khi hoàn tất        |
+
+---
+
+## Projects
+
+| Tên                                                                                        | Mô tả                                                                     |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| [kimaki](https://github.com/remorses/kimaki)                                               | Discord bot để điều khiển OpenCode sessions, xây dựng trên SDK            |
+| [opencode.nvim](https://github.com/NickvanDyke/opencode.nvim)                              | Neovim plugin cho prompt nhận biết editor, xây dựng trên API              |
+| [portal](https://github.com/hosenur/portal)                                                | Web UI ưu tiên mobile cho OpenCode qua Tailscale/VPN                      |
+| [opencode plugin template](https://github.com/zenobi-us/opencode-plugin-template/)         | Template để xây dựng OpenCode plugins                                     |
+| [opencode.nvim](https://github.com/sudo-tee/opencode.nvim)                                 | Neovim frontend cho opencode - AI coding agent chạy trên terminal         |
+| [ai-sdk-provider-opencode-sdk](https://github.com/ben-vargas/ai-sdk-provider-opencode-sdk) | Vercel AI SDK provider để dùng OpenCode qua @opencode-ai/sdk              |
+| [OpenChamber](https://github.com/btriapitsyn/openchamber)                                  | Web / Desktop App và VS Code Extension cho OpenCode                       |
+| [OpenCode-Obsidian](https://github.com/mtymek/opencode-obsidian)                           | Obsidian plugin nhúng OpenCode vào UI của Obsidian                        |
+| [OpenWork](https://github.com/different-ai/openwork)                                       | Một lựa chọn thay thế mã nguồn mở cho Claude Cowork, chạy bằng OpenCode   |
+| [ocx](https://github.com/kdcokenny/ocx)                                                    | Trình quản lý extension OpenCode với profile portable, cô lập.            |
+| [CodeNomad](https://github.com/NeuralNomadsAI/CodeNomad)                                   | Desktop, Web, Mobile và Remote Client App cho OpenCode                    |
+
+---
+
+## Agents
+
+| Tên                                                               | Mô tả                                                               |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------- |
+| [Agentic](https://github.com/Cluster444/agentic)                  | AI agents và commands dạng module cho phát triển có cấu trúc        |
+| [opencode-agents](https://github.com/darrenhinde/opencode-agents) | Configs, prompts, agents, và plugins cho workflow nâng cao          |

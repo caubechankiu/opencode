@@ -1,0 +1,425 @@
+---
+title: TUI
+description: Sử dụng giao diện người dùng terminal của OpenCode.
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+
+OpenCode cung cấp một giao diện terminal tương tác, hay TUI, để làm việc trên dự án của bạn với LLM.
+
+Chạy OpenCode sẽ khởi động TUI cho thư mục hiện tại.
+
+```bash
+opencode
+```
+
+Hoặc bạn có thể khởi động nó cho một thư mục làm việc cụ thể.
+
+```bash
+opencode /path/to/project
+```
+
+Khi đã ở trong TUI, bạn có thể nhập prompt bằng một tin nhắn.
+
+```text
+Give me a quick summary of the codebase.
+```
+
+---
+
+## Tham chiếu file
+
+Bạn có thể tham chiếu file trong tin nhắn bằng `@`. Thao tác này thực hiện tìm kiếm file mờ trong thư mục làm việc hiện tại.
+
+:::tip
+Bạn cũng có thể dùng `@` để tham chiếu file trong tin nhắn.
+:::
+
+```text "@packages/functions/src/api/index.ts"
+How is auth handled in @packages/functions/src/api/index.ts?
+```
+
+Nội dung của file sẽ được tự động thêm vào cuộc trò chuyện.
+
+Các [references](/docs/references) đã cấu hình cũng xuất hiện trong phần tự động hoàn thành của `@`. Gõ `@alias` để thêm gốc tham chiếu làm ngữ cảnh, hoặc gõ `@alias/` để tự động hoàn thành các file bên trong tham chiếu đó.
+
+```text "@docs/README.md"
+Compare our setup with @docs/README.md
+```
+
+---
+
+## Lệnh Bash
+
+Bắt đầu tin nhắn bằng `!` để chạy một lệnh shell.
+
+```bash frame="none"
+!ls -la
+```
+
+Đầu ra của lệnh sẽ được thêm vào cuộc trò chuyện dưới dạng kết quả công cụ.
+
+---
+
+## Lệnh
+
+Khi dùng OpenCode TUI, bạn có thể gõ `/` theo sau là tên lệnh để nhanh chóng thực hiện hành động. Ví dụ:
+
+```bash frame="none"
+/help
+```
+
+Hầu hết lệnh cũng có phím tắt dùng `ctrl+x` làm phím leader mặc định. [Tìm hiểu thêm](/docs/keybinds).
+
+Dưới đây là tất cả slash command hiện có:
+
+---
+
+### connect
+
+Thêm provider vào OpenCode. Cho phép bạn chọn trong các provider hiện có và thêm API key của họ.
+
+```bash frame="none"
+/connect
+```
+
+---
+
+### compact
+
+Nén phiên hiện tại. _Alias_: `/summarize`
+
+```bash frame="none"
+/compact
+```
+
+**Phím tắt:** `ctrl+x c`
+
+---
+
+### details
+
+Bật/tắt chi tiết thực thi công cụ.
+
+```bash frame="none"
+/details
+```
+
+---
+
+### editor
+
+Mở trình soạn thảo bên ngoài để soạn tin nhắn. Sử dụng trình soạn thảo được đặt trong biến môi trường `EDITOR` của bạn. [Tìm hiểu thêm](#editor-setup).
+
+```bash frame="none"
+/editor
+```
+
+**Phím tắt:** `ctrl+x e`
+
+---
+
+### exit
+
+Thoát OpenCode. _Aliases_: `/quit`, `/q`
+
+```bash frame="none"
+/exit
+```
+
+**Phím tắt:** `ctrl+x q`
+
+---
+
+### export
+
+Xuất cuộc trò chuyện hiện tại sang Markdown và mở trong trình soạn thảo mặc định của bạn. Sử dụng trình soạn thảo được đặt trong biến môi trường `EDITOR` của bạn. [Tìm hiểu thêm](#editor-setup).
+
+```bash frame="none"
+/export
+```
+
+**Phím tắt:** `ctrl+x x`
+
+---
+
+### help
+
+Hiển thị hộp thoại trợ giúp.
+
+```bash frame="none"
+/help
+```
+
+---
+
+### init
+
+Thiết lập có hướng dẫn để tạo hoặc cập nhật `AGENTS.md`. [Tìm hiểu thêm](/docs/rules).
+
+```bash frame="none"
+/init
+```
+
+---
+
+### models
+
+Liệt kê các model hiện có.
+
+```bash frame="none"
+/models
+```
+
+**Phím tắt:** `ctrl+x m`
+
+---
+
+### new
+
+Bắt đầu một phiên mới. _Alias_: `/clear`
+
+```bash frame="none"
+/new
+```
+
+**Phím tắt:** `ctrl+x n`
+
+---
+
+### redo
+
+Làm lại một tin nhắn đã hoàn tác trước đó. Chỉ khả dụng sau khi dùng `/undo`.
+
+:::tip
+Mọi thay đổi file cũng sẽ được khôi phục.
+:::
+
+Ở bên trong, lệnh này dùng Git để quản lý các thay đổi file. Vì vậy dự án của bạn **cần là một Git repository**.
+
+```bash frame="none"
+/redo
+```
+
+**Phím tắt:** `ctrl+x r`
+
+---
+
+### sessions
+
+Liệt kê và chuyển đổi giữa các phiên. _Aliases_: `/resume`, `/continue`
+
+```bash frame="none"
+/sessions
+```
+
+**Phím tắt:** `ctrl+x l`
+
+---
+
+### share
+
+Chia sẻ phiên hiện tại. [Tìm hiểu thêm](/docs/share).
+
+```bash frame="none"
+/share
+```
+
+---
+
+### themes
+
+Liệt kê các theme hiện có.
+
+```bash frame="none"
+/themes
+```
+
+**Phím tắt:** `ctrl+x t`
+
+---
+
+### thinking
+
+Bật/tắt hiển thị các khối thinking/reasoning trong cuộc trò chuyện. Khi bật, bạn có thể xem quá trình reasoning của model đối với các model hỗ trợ extended thinking.
+
+:::note
+Lệnh này chỉ kiểm soát việc khối thinking có được **hiển thị** hay không - nó không bật hoặc tắt khả năng reasoning của model. Để chuyển đổi khả năng reasoning thực sự, dùng `ctrl+t` để xoay vòng qua các biến thể model.
+:::
+
+```bash frame="none"
+/thinking
+```
+
+---
+
+### undo
+
+Hoàn tác tin nhắn cuối trong cuộc trò chuyện. Xóa tin nhắn người dùng gần nhất, tất cả phản hồi sau đó và mọi thay đổi file.
+
+:::tip
+Mọi thay đổi file đã thực hiện cũng sẽ được hoàn nguyên.
+:::
+
+Ở bên trong, lệnh này dùng Git để quản lý các thay đổi file. Vì vậy dự án của bạn **cần là một Git repository**.
+
+```bash frame="none"
+/undo
+```
+
+**Phím tắt:** `ctrl+x u`
+
+---
+
+### unshare
+
+Ngừng chia sẻ phiên hiện tại. [Tìm hiểu thêm](/docs/share#un-sharing).
+
+```bash frame="none"
+/unshare
+```
+
+---
+
+## Thiết lập editor
+
+Cả lệnh `/editor` và `/export` đều dùng editor được chỉ định trong biến môi trường `EDITOR`.
+
+<Tabs>
+  <TabItem label="Linux/macOS">
+    ```bash
+    # Example for nano or vim
+    export EDITOR=nano
+    export EDITOR=vim
+
+    # For GUI editors, VS Code, Cursor, VSCodium, Windsurf, Zed, etc.
+    # include --wait
+    export EDITOR="code --wait"
+    ```
+
+    Để đặt vĩnh viễn, thêm nội dung này vào shell profile của bạn;
+    `~/.bashrc`, `~/.zshrc`, v.v.
+
+  </TabItem>
+
+  <TabItem label="Windows (CMD)">
+    ```bash
+    set EDITOR=notepad
+
+    # For GUI editors, VS Code, Cursor, VSCodium, Windsurf, Zed, etc.
+    # include --wait
+    set EDITOR=code --wait
+    ```
+
+    Để đặt vĩnh viễn, dùng **System Properties** > **Environment
+    Variables**.
+
+  </TabItem>
+
+  <TabItem label="Windows (PowerShell)">
+    ```powershell
+    $env:EDITOR = "notepad"
+
+    # For GUI editors, VS Code, Cursor, VSCodium, Windsurf, Zed, etc.
+    # include --wait
+    $env:EDITOR = "code --wait"
+    ```
+
+    Để đặt vĩnh viễn, thêm nội dung này vào PowerShell profile của bạn.
+
+  </TabItem>
+</Tabs>
+
+Các tùy chọn editor phổ biến gồm:
+
+- `code` - Visual Studio Code
+- `cursor` - Cursor
+- `windsurf` - Windsurf
+- `nvim` - Neovim editor
+- `vim` - Vim editor
+- `nano` - Nano editor
+- `notepad` - Windows Notepad
+- `subl` - Sublime Text
+
+:::note
+Một số editor như VS Code cần được khởi động với flag `--wait`.
+:::
+
+Một số editor cần đối số dòng lệnh để chạy ở chế độ blocking. Flag `--wait` làm cho process editor chặn cho đến khi đóng.
+
+---
+
+## Cấu hình
+
+Bạn có thể tùy chỉnh hành vi TUI thông qua `tui.json` (hoặc `tui.jsonc`).
+
+```json title="tui.json"
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "theme": "opencode",
+  "leader_timeout": 2000,
+  "keybinds": {
+    "leader": "ctrl+x",
+    "command_list": "ctrl+p"
+  },
+  "scroll_speed": 3,
+  "scroll_acceleration": {
+    "enabled": false
+  },
+  "diff_style": "auto",
+  "mouse": true,
+  "attention": {
+    "enabled": true,
+    "notifications": true,
+    "sound": true,
+    "volume": 0.4,
+    "sound_pack": "opencode.default",
+    "sounds": {
+      "error": "./sounds/error.mp3"
+    }
+  }
+}
+```
+
+Phần này tách biệt với `opencode.json`, vốn cấu hình hành vi server/runtime.
+
+`keybinds` được merge với mặc định tích hợp sẵn, nên bạn chỉ cần cấu hình các phím tắt muốn thay đổi.
+
+### Tùy chọn
+
+- `theme` - Đặt theme UI của bạn. [Tìm hiểu thêm](/docs/themes).
+- `keybinds` - Tùy chỉnh phím tắt. [Tìm hiểu thêm](/docs/keybinds).
+- `leader_timeout` - Kiểm soát thời gian OpenCode chờ sau phím leader. Mặc định là `2000`.
+- `scroll_acceleration.enabled` - Bật tăng tốc cuộn kiểu macOS để cuộn mượt và tự nhiên. Khi bật, tốc độ cuộn tăng theo các cử chỉ cuộn nhanh và vẫn chính xác với thao tác cuộn chậm hơn. **Thiết lập này có độ ưu tiên cao hơn `scroll_speed` và ghi đè nó khi được bật.**
+- `scroll_speed` - Kiểm soát tốc độ cuộn của TUI khi dùng lệnh cuộn (tối thiểu: `0.001`, hỗ trợ giá trị thập phân). Mặc định là `3`. **Lưu ý: Thiết lập này bị bỏ qua nếu `scroll_acceleration.enabled` được đặt thành `true`.**
+- `diff_style` - Kiểm soát cách render diff. `"auto"` thích ứng với chiều rộng terminal, `"stacked"` luôn hiển thị bố cục một cột.
+- `mouse` - Bật hoặc tắt bắt chuột trong TUI (mặc định: `true`). Khi tắt, hành vi chọn/cuộn chuột native của terminal được giữ nguyên.
+- `attention` - Cấu hình thông báo desktop và âm thanh của TUI. Mặc định bị tắt.
+
+Dùng `OPENCODE_TUI_CONFIG` để tải đường dẫn TUI config tùy chỉnh.
+
+### Attention
+
+TUI có thể yêu cầu chú ý cho câu hỏi, quyền, lỗi phiên và phiên đã hoàn tất. Bật bằng `attention.enabled`; các event tích hợp sẵn phát âm thanh khi được kích hoạt, và các event không phải subagent chỉ yêu cầu thông báo desktop khi terminal bị blur.
+
+- `enabled` - Bật tất cả thông báo và âm thanh attention. Mặc định là `false`.
+- `notifications` - Cho phép thông báo desktop qua terminal khi attention được bật. Mặc định là `true`.
+- `sound` - Cho phép âm thanh attention khi attention được bật. Mặc định là `true`.
+- `volume` - Âm lượng mặc định từ `0` đến `1`. Mặc định là `0.4`.
+- `sound_pack` - Sound pack ID cần dùng. Mặc định là `opencode.default`.
+- `sounds` - Ghi đè file âm thanh cho `default`, `question`, `permission`, `error`, `done`, hoặc `subagent_done`. Đường dẫn có thể là absolute, URL `file://`, hoặc tương đối với `tui.json`.
+
+---
+
+## Tùy chỉnh
+
+Bạn có thể tùy chỉnh nhiều khía cạnh của giao diện TUI bằng command palette (`ctrl+p`). Các thiết lập này được giữ lại qua các lần khởi động lại.
+
+---
+
+#### Hiển thị username
+
+Bật/tắt việc username của bạn có xuất hiện trong tin nhắn chat hay không. Truy cập qua:
+
+- Command palette: Tìm "username" hoặc "hide username"
+- Thiết lập được lưu tự động và sẽ được ghi nhớ qua các phiên TUI

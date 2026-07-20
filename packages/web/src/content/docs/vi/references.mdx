@@ -1,0 +1,157 @@
+---
+title: Tham chiếu
+description: Thêm thư mục cục bộ và Git repositories làm tham chiếu dự án.
+---
+
+References cho OpenCode quyền truy cập vào các thư mục bên ngoài dự án hiện tại. Dùng chúng để cung cấp tài liệu, thư viện dùng chung, ví dụ, hoặc một repository khác trong lúc bạn làm việc.
+
+References được cấu hình theo alias trong `opencode.json` hoặc `opencode.jsonc`.
+
+```jsonc title="opencode.jsonc"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "references": {
+    "docs": {
+      "path": "../product-docs",
+      "description": "Use for product behavior and documentation conventions",
+    },
+    "sdk": {
+      "repository": "anomalyco/opencode-sdk-js",
+      "branch": "main",
+      "description": "Use for JavaScript SDK implementation details",
+    },
+  },
+}
+```
+
+---
+
+## Thư mục cục bộ
+
+Dùng `path` để tham chiếu một thư mục cục bộ.
+
+```jsonc title="opencode.jsonc"
+{
+  "references": {
+    "docs": {
+      "path": "../docs",
+    },
+  },
+}
+```
+
+Đường dẫn có thể là:
+
+- Tương đối với tệp cấu hình định nghĩa reference
+- Tuyệt đối, chẳng hạn `/home/user/docs`
+- Tương đối với thư mục home của bạn, chẳng hạn `~/docs`
+
+Bạn cũng có thể dùng dạng viết tắt bằng chuỗi:
+
+```jsonc title="opencode.jsonc"
+{
+  "references": {
+    "docs": "../docs",
+  },
+}
+```
+
+---
+
+## Git repositories
+
+Dùng `repository` để tham chiếu một Git repository. OpenCode materializes repository trong cache repository cục bộ của nó và cung cấp mã nguồn đã checkout dưới dạng thư mục tham chiếu.
+
+```jsonc title="opencode.jsonc"
+{
+  "references": {
+    "effect": {
+      "repository": "Effect-TS/effect",
+      "branch": "main",
+    },
+  },
+}
+```
+
+`repository` chấp nhận Git URLs, tham chiếu host/path, và dạng viết tắt GitHub `owner/repo`. Trường tùy chọn `branch` chọn một branch hoặc ref. Nếu không có `branch`, OpenCode dùng branch mặc định của repository.
+
+Bạn có thể dùng dạng viết tắt bằng chuỗi khi không cần branch, description, hoặc tùy chọn khác:
+
+```jsonc title="opencode.jsonc"
+{
+  "references": {
+    "effect": "Effect-TS/effect",
+  },
+}
+```
+
+:::note
+Git references được làm mới bất đồng bộ. Một repository mới cấu hình có thể cần một chút thời gian để hoàn tất clone hoặc cập nhật.
+:::
+
+---
+
+## Mô tả cách dùng
+
+Thêm `description` để giải thích khi nào agent nên dùng một reference.
+
+```jsonc title="opencode.jsonc"
+{
+  "references": {
+    "design-system": {
+      "path": "../design-system",
+      "description": "Use when implementing UI components or design tokens",
+    },
+  },
+}
+```
+
+OpenCode đưa các references có description vào ngữ cảnh agent. Description nên ngắn và đủ cụ thể để phân biệt những references có nội dung tương tự. References không có description vẫn khả dụng qua autocomplete và dùng trực tiếp, nhưng không được quảng bá cho agents.
+
+---
+
+## Ẩn mục autocomplete
+
+Đặt `hidden` thành `true` để bỏ một reference khỏi autocomplete `@` trong TUI.
+
+```jsonc title="opencode.jsonc"
+{
+  "references": {
+    "internal": {
+      "path": "../internal",
+      "description": "Use for internal implementation details",
+      "hidden": true,
+    },
+  },
+}
+```
+
+`hidden` chỉ ảnh hưởng đến autocomplete. Một reference bị ẩn nhưng có description vẫn được đưa vào ngữ cảnh agent.
+
+---
+
+## Dùng references
+
+References đã cấu hình xuất hiện trong autocomplete `@` của TUI. Nhập `@alias` để đính kèm thư mục gốc của reference, hoặc `@alias/` để tìm tệp bên trong nó.
+
+```text
+Compare this implementation with @sdk/src/client.ts
+```
+
+Agents cũng nhận được các đường dẫn đã phân giải và description của references đã cấu hình có description trong system context của chúng, để chúng có thể kiểm tra reference khi liên quan mà bạn không cần đính kèm thủ công.
+
+OpenCode tự động cho phép các thư mục reference đi qua ranh giới quyền thư mục bên ngoài. Quyền công cụ thông thường vẫn áp dụng; ví dụ, một agent không thể sửa tệp sẽ không có quyền sửa chỉ vì một thư mục được cấu hình làm reference.
+
+---
+
+## Trường cấu hình
+
+| Trường        | Local | Git | Mô tả                                           |
+| ------------- | ----- | --- | ----------------------------------------------- |
+| `path`        | Yes   | No  | Thư mục tham chiếu cục bộ                       |
+| `repository`  | No    | Yes | Git URL, host/path, hoặc giá trị GitHub `owner/repo` |
+| `branch`      | No    | Yes | Git branch hoặc ref tùy chọn                    |
+| `description` | Yes   | Yes | Hướng dẫn mô tả khi nào dùng reference          |
+| `hidden`      | Yes   | Yes | Ẩn reference khỏi autocomplete `@` của TUI      |
+
+Alias reference không được rỗng hoặc chứa `/`, khoảng trắng, backticks, hoặc dấu phẩy.

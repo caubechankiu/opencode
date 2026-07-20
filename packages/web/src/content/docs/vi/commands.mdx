@@ -1,0 +1,322 @@
+---
+title: Lệnh
+description: Tạo lệnh tùy chỉnh cho các tác vụ lặp lại.
+---
+
+Lệnh tùy chỉnh cho phép bạn chỉ định một prompt muốn chạy khi lệnh đó được thực thi trong TUI.
+
+```bash frame="none"
+/my-command
+```
+
+Lệnh tùy chỉnh là phần bổ sung cho các lệnh tích hợp sẵn như `/init`, `/undo`, `/redo`, `/share`, `/help`. [Tìm hiểu thêm](/docs/tui#commands).
+
+---
+
+## Tạo tệp lệnh
+
+Tạo các tệp markdown trong thư mục `commands/` để định nghĩa lệnh tùy chỉnh.
+
+Tạo `.opencode/commands/test.md`:
+
+```md title=".opencode/commands/test.md"
+---
+description: Run tests with coverage
+agent: build
+model: anthropic/claude-3-5-sonnet-20241022
+---
+
+Run the full test suite with coverage report and show any failures.
+Focus on the failing tests and suggest fixes.
+```
+
+Frontmatter định nghĩa các thuộc tính của lệnh. Nội dung trở thành template.
+
+Dùng lệnh bằng cách gõ `/` theo sau là tên lệnh.
+
+```bash frame="none"
+"/test"
+```
+
+---
+
+## Cấu hình
+
+Bạn có thể thêm lệnh tùy chỉnh thông qua cấu hình OpenCode hoặc bằng cách tạo tệp markdown trong thư mục `commands/`.
+
+---
+
+### JSON
+
+Dùng tùy chọn `command` trong [config](/docs/config) OpenCode của bạn:
+
+```json title="opencode.jsonc" {4-12}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "command": {
+    // This becomes the name of the command
+    "test": {
+      // This is the prompt that will be sent to the LLM
+      "template": "Run the full test suite with coverage report and show any failures.\nFocus on the failing tests and suggest fixes.",
+      // This is shown as the description in the TUI
+      "description": "Run tests with coverage",
+      "agent": "build",
+      "model": "anthropic/claude-3-5-sonnet-20241022"
+    }
+  }
+}
+```
+
+Bây giờ bạn có thể chạy lệnh này trong TUI:
+
+```bash frame="none"
+/test
+```
+
+---
+
+### Markdown
+
+Bạn cũng có thể định nghĩa lệnh bằng tệp markdown. Đặt chúng ở:
+
+- Toàn cục: `~/.config/opencode/commands/`
+- Theo dự án: `.opencode/commands/`
+
+```markdown title="~/.config/opencode/commands/test.md"
+---
+description: Run tests with coverage
+agent: build
+model: anthropic/claude-3-5-sonnet-20241022
+---
+
+Run the full test suite with coverage report and show any failures.
+Focus on the failing tests and suggest fixes.
+```
+
+Tên tệp markdown trở thành tên lệnh. Ví dụ, `test.md` cho phép bạn chạy:
+
+```bash frame="none"
+/test
+```
+
+---
+
+## Cấu hình prompt
+
+Prompt cho lệnh tùy chỉnh hỗ trợ một số placeholder và cú pháp đặc biệt.
+
+---
+
+### Đối số
+
+Truyền đối số cho lệnh bằng placeholder `$ARGUMENTS`.
+
+```md title=".opencode/commands/component.md"
+---
+description: Create a new component
+---
+
+Create a new React component named $ARGUMENTS with TypeScript support.
+Include proper typing and basic structure.
+```
+
+Chạy lệnh với đối số:
+
+```bash frame="none"
+/component Button
+```
+
+Và `$ARGUMENTS` sẽ được thay bằng `Button`.
+
+Bạn cũng có thể truy cập từng đối số bằng tham số vị trí:
+
+- `$1` - Đối số thứ nhất
+- `$2` - Đối số thứ hai
+- `$3` - Đối số thứ ba
+- Và tiếp tục như vậy...
+
+Ví dụ:
+
+```md title=".opencode/commands/create-file.md"
+---
+description: Create a new file with content
+---
+
+Create a file named $1 in the directory $2
+with the following content: $3
+```
+
+Chạy lệnh:
+
+```bash frame="none"
+/create-file config.json src "{ \"key\": \"value\" }"
+```
+
+Lệnh này thay:
+
+- `$1` bằng `config.json`
+- `$2` bằng `src`
+- `$3` bằng `{ "key": "value" }`
+
+---
+
+### Kết quả shell
+
+Dùng _!`command`_ để chèn kết quả của [lệnh bash](/docs/tui#bash-commands) vào prompt của bạn.
+
+Ví dụ, để tạo một lệnh tùy chỉnh phân tích độ phủ kiểm thử:
+
+```md title=".opencode/commands/analyze-coverage.md"
+---
+description: Analyze test coverage
+---
+
+Here are the current test results:
+!`npm test`
+
+Based on these results, suggest improvements to increase coverage.
+```
+
+Hoặc để review các thay đổi gần đây:
+
+```md title=".opencode/commands/review-changes.md"
+---
+description: Review recent changes
+---
+
+Recent git commits:
+!`git log --oneline -10`
+
+Review these changes and suggest any improvements.
+```
+
+Các lệnh chạy trong thư mục gốc của dự án và kết quả của chúng trở thành một phần của prompt.
+
+---
+
+### Tham chiếu tệp
+
+Bao gồm tệp trong lệnh của bạn bằng `@` theo sau là tên tệp.
+
+```md title=".opencode/commands/review-component.md"
+---
+description: Review component
+---
+
+Review the component in @src/components/Button.tsx.
+Check for performance issues and suggest improvements.
+```
+
+Nội dung tệp sẽ tự động được đưa vào prompt.
+
+---
+
+## Tùy chọn
+
+Hãy xem chi tiết các tùy chọn cấu hình.
+
+---
+
+### Template
+
+Tùy chọn `template` định nghĩa prompt sẽ được gửi tới LLM khi lệnh được thực thi.
+
+```json title="opencode.json"
+{
+  "command": {
+    "test": {
+      "template": "Run the full test suite with coverage report and show any failures.\nFocus on the failing tests and suggest fixes."
+    }
+  }
+}
+```
+
+Đây là tùy chọn cấu hình **bắt buộc**.
+
+---
+
+### Description
+
+Dùng tùy chọn `description` để cung cấp mô tả ngắn về chức năng của lệnh.
+
+```json title="opencode.json"
+{
+  "command": {
+    "test": {
+      "description": "Run tests with coverage"
+    }
+  }
+}
+```
+
+Mô tả này được hiển thị trong TUI khi bạn gõ lệnh.
+
+---
+
+### Agent
+
+Dùng cấu hình `agent` để tùy chọn chỉ định [agent](/docs/agents) nào sẽ thực thi lệnh này.
+Nếu đây là một [subagent](/docs/agents/#subagents), theo mặc định lệnh sẽ kích hoạt một lần gọi subagent.
+Để tắt hành vi này, đặt `subtask` thành `false`.
+
+```json title="opencode.json"
+{
+  "command": {
+    "review": {
+      "agent": "plan"
+    }
+  }
+}
+```
+
+Đây là tùy chọn cấu hình **không bắt buộc**. Nếu không được chỉ định, mặc định là agent hiện tại của bạn.
+
+---
+
+### Subtask
+
+Dùng boolean `subtask` để buộc lệnh kích hoạt một lần gọi [subagent](/docs/agents/#subagents).
+Điều này hữu ích nếu bạn không muốn lệnh làm nhiễu ngữ cảnh chính và sẽ **buộc** agent hoạt động như một subagent,
+ngay cả khi `mode` được đặt thành `primary` trong cấu hình [agent](/docs/agents).
+
+```json title="opencode.json"
+{
+  "command": {
+    "analyze": {
+      "subtask": true
+    }
+  }
+}
+```
+
+Đây là tùy chọn cấu hình **không bắt buộc**.
+
+---
+
+### Model
+
+Dùng cấu hình `model` để ghi đè model mặc định cho lệnh này.
+
+```json title="opencode.json"
+{
+  "command": {
+    "analyze": {
+      "model": "anthropic/claude-3-5-sonnet-20241022"
+    }
+  }
+}
+```
+
+Đây là tùy chọn cấu hình **không bắt buộc**.
+
+---
+
+## Tích hợp sẵn
+
+opencode bao gồm một số lệnh tích hợp sẵn như `/init`, `/undo`, `/redo`, `/share`, `/help`; [tìm hiểu thêm](/docs/tui#commands).
+
+:::note
+Lệnh tùy chỉnh có thể ghi đè lệnh tích hợp sẵn.
+:::
+
+Nếu bạn định nghĩa lệnh tùy chỉnh trùng tên, nó sẽ ghi đè lệnh tích hợp sẵn.
